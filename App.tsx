@@ -1,131 +1,277 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, {useState, useEffect} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+// 使用Text代替Icon，因为没有安装react-native-vector-icons
+// import Icon from 'react-native-vector-icons/Ionicons';
+// 导入Vector Icons
+import Ionicons from 'react-native-vector-icons/Ionicons';
+// 移除不存在的hook
+// import {useAuthStore} from './src/hooks/useAuthStore';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+// 添加类型声明
+declare module 'react-native-vector-icons/Ionicons';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+// 为全局对象添加类型声明
+declare global {
+  var setIsAuthenticated: ((value: boolean) => void) | undefined;
+  var isAuthenticated: boolean | undefined;
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+// Auth Screens
+import LoginScreen from './src/screens/auth/Login';
+import SignupScreen from './src/screens/auth/Signup';
+import ProfileSetupScreen from './src/screens/auth/ProfileSetup';
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+// Main Screens
+import HomeScreen from './src/screens/home/Home';
+import EventsScreen from './src/screens/events/Events';
+import EventDetailScreen from './src/screens/events/EventDetail';
+import ConnectionsScreen from './src/screens/connections/Connections';
+import ConversationsScreen from './src/screens/conversations/Conversations';
+import ChatScreen from './src/screens/conversations/Chat';
+import ProfileScreen from './src/screens/profile/Profile';
+import UserListScreen from './src/screens/profile/UserList';
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the reccomendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
+// Define the param list for the auth stack
+export type AuthStackParamList = {
+  Login: undefined;
+  Signup: undefined;
+  ProfileSetup: undefined;
+};
 
+// Define the param list for the home stack
+export type HomeStackParamList = {
+  Home: undefined;
+  EventDetail: {eventId: number};
+};
+
+// Define the param list for the events stack
+export type EventsStackParamList = {
+  EventsList: undefined;
+  EventDetail: {eventId: number};
+};
+
+// Define the param list for the connections stack
+export type ConnectionsStackParamList = {
+  ConnectionsList: undefined;
+};
+
+// Define the param list for the conversations stack
+export type ConversationsStackParamList = {
+  ConversationsList: undefined;
+  Chat: {userId: number; username: string};
+};
+
+// Define the param list for the profile stack
+export type ProfileStackParamList = {
+  UserProfile: undefined;
+  UserList: {type: 'followers' | 'following'};
+};
+
+// Create the navigators
+const AuthStack = createStackNavigator<AuthStackParamList>();
+const HomeStack = createStackNavigator<HomeStackParamList>();
+const EventsStack = createStackNavigator<EventsStackParamList>();
+const ConnectionsStack = createStackNavigator<ConnectionsStackParamList>();
+const ConversationsStack = createStackNavigator<ConversationsStackParamList>();
+const ProfileStack = createStackNavigator<ProfileStackParamList>();
+const Tab = createBottomTabNavigator();
+
+// Auth Stack Navigator
+const AuthStackNavigator = () => {
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <AuthStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="Signup" component={SignupScreen} />
+      <AuthStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+    </AuthStack.Navigator>
+  );
+};
+
+// Home Stack Navigator
+const HomeStackNavigator = () => {
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{headerShown: false}}
       />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </View>
+      <HomeStack.Screen
+        name="EventDetail"
+        component={EventDetailScreen}
+        options={{title: 'Event Details'}}
+      />
+    </HomeStack.Navigator>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+// Events Stack Navigator
+const EventsStackNavigator = () => {
+  return (
+    <EventsStack.Navigator>
+      <EventsStack.Screen
+        name="EventsList"
+        component={EventsScreen}
+        options={{headerShown: false}}
+      />
+      <EventsStack.Screen
+        name="EventDetail"
+        component={EventDetailScreen}
+        options={{title: 'Event Details'}}
+      />
+    </EventsStack.Navigator>
+  );
+};
+
+// Connections Stack Navigator
+const ConnectionsStackNavigator = () => {
+  return (
+    <ConnectionsStack.Navigator>
+      <ConnectionsStack.Screen
+        name="ConnectionsList"
+        component={ConnectionsScreen}
+        options={{headerShown: false}}
+      />
+    </ConnectionsStack.Navigator>
+  );
+};
+
+// Conversations Stack Navigator
+const ConversationsStackNavigator = () => {
+  return (
+    <ConversationsStack.Navigator>
+      <ConversationsStack.Screen
+        name="ConversationsList"
+        component={ConversationsScreen}
+        options={{headerShown: false}}
+      />
+      <ConversationsStack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={({route}) => ({
+          title: route.params.username,
+        })}
+      />
+    </ConversationsStack.Navigator>
+  );
+};
+
+// Profile Stack Navigator
+const ProfileStackNavigator = () => {
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen
+        name="UserProfile"
+        component={ProfileScreen}
+        options={{headerShown: false}}
+      />
+      <ProfileStack.Screen
+        name="UserList"
+        component={UserListScreen}
+        options={({route}) => ({
+          title: route.params.type === 'followers' ? 'Followers' : 'Following',
+        })}
+      />
+    </ProfileStack.Navigator>
+  );
+};
+
+// Main Tab Navigator
+const MainTabNavigator = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={({route}) => ({
+        tabBarIcon: ({focused, color, size}) => {
+          let iconName = '';
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Events') {
+            iconName = focused ? 'calendar' : 'calendar-outline';
+          } else if (route.name === 'Connections') {
+            iconName = focused ? 'add-circle' : 'add-circle-outline';
+          } else if (route.name === 'Chats') {
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'Account') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+
+          // 使用Ionicons组件
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#006400',
+        tabBarInactiveTintColor: 'gray',
+      })}>
+      <Tab.Screen
+        name="Home"
+        component={HomeStackNavigator}
+        options={{headerShown: false}}
+      />
+      <Tab.Screen
+        name="Events"
+        component={EventsStackNavigator}
+        options={{headerShown: false}}
+      />
+      <Tab.Screen
+        name="Connections"
+        component={ConnectionsStackNavigator}
+        options={{headerShown: false}}
+      />
+      <Tab.Screen
+        name="Chats"
+        component={ConversationsStackNavigator}
+        options={{headerShown: false}}
+      />
+      <Tab.Screen
+        name="Account"
+        component={ProfileStackNavigator}
+        options={{headerShown: false}}
+      />
+    </Tab.Navigator>
+  );
+};
+
+// Main App Component
+const App = () => {
+  // 使用本地状态代替store
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // 将setIsAuthenticated函数暴露给全局，以便Login.tsx可以调用
+  global.setIsAuthenticated = setIsAuthenticated;
+
+  useEffect(() => {
+    // 模拟检查登录状态
+    // 实际应用中应该从AsyncStorage或其他存储中获取
+    setTimeout(() => {
+      setIsAuthenticated(false);
+    }, 1000);
+
+    // 检查全局登录状态
+    const checkGlobalAuth = setInterval(() => {
+      if (global.isAuthenticated) {
+        console.log('Global authentication state detected, updating local state');
+        setIsAuthenticated(true);
+        global.isAuthenticated = false;
+        clearInterval(checkGlobalAuth);
+      }
+    }, 100);
+    
+    return () => clearInterval(checkGlobalAuth);
+  }, []);
+
+  console.log('Current authentication state:', isAuthenticated);
+
+  return (
+    <NavigationContainer>
+      {isAuthenticated ? <MainTabNavigator /> : <AuthStackNavigator />}
+    </NavigationContainer>
+  );
+};
 
 export default App;
+
