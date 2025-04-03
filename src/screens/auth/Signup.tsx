@@ -10,28 +10,67 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {AuthStackParamList} from '../../../App';
+import {useAuthStore} from '../../hooks/useAuthStore';
+import {observer} from 'mobx-react-lite';
 
 type SignupScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Signup'>;
 
-const SignupScreen = () => {
+const SignupScreen = observer(() => {
   const navigation = useNavigation<SignupScreenNavigationProp>();
+  const authStore = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
 
-  const handleSignup = () => {
-    // API call for signup should be here
-    if (password !== confirmPassword) {
-      console.log('Passwords do not match');
+  const handleSignup = async () => {
+    // 表单验证
+    if (!email.trim() || !password.trim() || !confirmPassword.trim() || !name.trim()) {
+      Alert.alert('错误', '请填写所有必填字段');
       return;
     }
-    console.log('Signup', {email, password});
-    // After successful signup, navigate to profile setup
-    navigation.navigate('ProfileSetup');
+
+    if (password !== confirmPassword) {
+      Alert.alert('错误', '两次输入的密码不匹配');
+      return;
+    }
+
+    if (password.length < 8) {
+      Alert.alert('错误', '密码至少需要8个字符');
+      return;
+    }
+
+    // 用户注册只有基本信息，其他信息需要在个人资料设置页面填写
+    try {
+      const userData = {
+        name: name,
+        email: email,
+        password: password,
+        level_of_study: "", // 这些字段将在ProfileSetup中设置
+        userCountry: "",
+        userRegions: "",
+        userCity: "",
+        userField: "",
+        userUni: "",
+        userLanguage: "",
+      };
+      
+      const success = await authStore.register(userData);
+      
+      if (success) {
+        // 注册成功后导航到个人资料设置页面
+        navigation.navigate('ProfileSetup');
+      }
+    } catch (error) {
+      console.error('注册错误:', error);
+      Alert.alert('注册失败', '发生错误，请稍后重试');
+    }
   };
 
   return (
@@ -44,16 +83,26 @@ const SignupScreen = () => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Text style={styles.backButton}>{'<'}</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Create Your Account</Text>
+            <Text style={styles.headerTitle}>创建您的账户</Text>
           </View>
 
-          <Text style={styles.subtitle}>Please fill in the information below to create your account</Text>
+          <Text style={styles.subtitle}>请填写以下信息创建您的账户</Text>
 
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="Email"
+                placeholder="姓名"
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="邮箱"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -64,7 +113,7 @@ const SignupScreen = () => {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="密码"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -74,42 +123,47 @@ const SignupScreen = () => {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="Confirm Password"
+                placeholder="确认密码"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
               />
             </View>
 
-            <Text style={styles.passwordHint}>Password must contain at least 8 characters</Text>
+            <Text style={styles.passwordHint}>密码必须至少包含8个字符</Text>
 
             <TouchableOpacity
               style={styles.signupButton}
-              onPress={handleSignup}>
-              <Text style={styles.signupButtonText}>Continue</Text>
+              onPress={handleSignup}
+              disabled={authStore.loading}>
+              {authStore.loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.signupButtonText}>继续</Text>
+              )}
             </TouchableOpacity>
 
             <View style={styles.loginContainer}>
-              <Text style={styles.loginText}>Already have an account? </Text>
+              <Text style={styles.loginText}>已有账号? </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.loginLink}>Login</Text>
+                <Text style={styles.loginLink}>登录</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.securityContainer}>
-              <Text style={styles.securityText}>Security by</Text>
+              <Text style={styles.securityText}>安全由</Text>
               <Image
                 source={require('../../../src/assets/icons/security.png')}
                 style={styles.securityIcon}
               />
-              <Text style={styles.securityText}>Provider</Text>
+              <Text style={styles.securityText}>提供</Text>
             </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

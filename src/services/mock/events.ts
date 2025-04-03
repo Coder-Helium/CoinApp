@@ -8,6 +8,14 @@ export type Event = {
   description: string;
   attendees: number;
   isRegistered: boolean;
+  externalLink?: string;
+};
+
+// 完整的API响应类型
+export type ApiResponse<T> = {
+  code: number;
+  message: string;
+  data: T;
 };
 
 // 模拟活动数据
@@ -15,85 +23,166 @@ export const mockEvents: Event[] = [
   {
     id: 1,
     title: 'Sydney Language Exchange',
-    date: '27 Mar 2023',
+    date: '2023-03-27T18:00:00',
     time: '18:00',
     location: 'Sydney CBD',
     image: 'https://picsum.photos/400/200',
-    description: '加入我们的语言交流活动，结交来自世界各地的朋友，提高您的语言技能。活动将在悉尼市中心举行，提供小吃和饮料。',
+    description: 'Join our language exchange event to make friends from around the world and improve your language skills. The event will be held in Sydney CBD with snacks and drinks provided.',
     attendees: 45,
     isRegistered: false,
+    externalLink: 'https://example.com/events/1',
   },
   {
     id: 2,
     title: 'International Student Mixer',
-    date: '30 Mar 2023',
+    date: '2023-03-30T19:00:00',
     time: '19:00',
     location: 'Sydney University',
     image: 'https://picsum.photos/400/201',
-    description: '为国际学生举办的社交活动，认识来自不同国家和文化背景的同学。活动将在悉尼大学举行，提供食物和饮料。',
+    description: 'A social event for international students to meet classmates from different countries and cultural backgrounds. The event will be held at Sydney University with food and drinks provided.',
     attendees: 32,
     isRegistered: true,
+    externalLink: 'https://example.com/events/2',
   },
   {
     id: 3,
     title: 'Cultural Food Festival',
-    date: '5 Apr 2023',
+    date: '2023-04-05T12:00:00',
     time: '12:00',
     location: 'Darling Harbour',
     image: 'https://picsum.photos/400/202',
-    description: '品尝来自世界各地的美食，体验不同的文化和传统。活动将在达令港举行，有现场音乐表演和文化展示。',
+    description: 'Taste cuisines from around the world and experience different cultures and traditions. The event will be held at Darling Harbour with live music performances and cultural exhibitions.',
     attendees: 78,
     isRegistered: false,
+    externalLink: 'https://example.com/events/3',
   },
   {
     id: 4,
     title: 'Career Networking Event',
-    date: '10 Apr 2023',
+    date: '2023-04-10T17:30:00',
     time: '17:30',
     location: 'NSW Business Chamber',
     image: 'https://picsum.photos/400/203',
-    description: '为国际学生和毕业生提供的职业发展和人脉拓展活动。与行业专业人士交流，了解就业机会和职业发展路径。',
+    description: 'Career development and networking event for international students and graduates. Connect with industry professionals and learn about job opportunities and career paths.',
     attendees: 50,
     isRegistered: false,
+    externalLink: 'https://example.com/events/4',
   },
 ];
 
+// 分页数据类型
+export type PageData<T> = {
+  records: T[];
+  total: number;
+  size: number;
+  current: number;
+  pages: number;
+};
+
 // 模拟API服务
-export const eventApi = {
+export const mockEventApi = {
   // 获取所有活动
-  getEvents: async (): Promise<Event[]> => {
+  getEvents: async (): Promise<ApiResponse<Event[]>> => {
     // 模拟API请求延迟
     await new Promise(resolve => setTimeout(resolve, 500));
-    return mockEvents;
+    return {
+      code: 200,
+      message: 'Event list retrieved successfully',
+      data: mockEvents,
+    };
+  },
+
+  // 分页获取活动列表
+  getEventsPage: async (page: number = 1, size: number = 10): Promise<ApiResponse<PageData<Event>>> => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const total = mockEvents.length;
+    const pages = Math.ceil(total / size);
+    const startIndex = (page - 1) * size;
+    const endIndex = Math.min(startIndex + size, total);
+    const records = mockEvents.slice(startIndex, endIndex);
+
+    return {
+      code: 200,
+      message: 'Paged event list retrieved successfully',
+      data: {
+        records,
+        total,
+        size,
+        current: page,
+        pages,
+      }
+    };
   },
 
   // 获取单个活动详情
-  getEventById: async (id: number): Promise<Event | undefined> => {
+  getEventById: async (id: number): Promise<ApiResponse<Event | null>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
-    return mockEvents.find(event => event.id === id);
+    const event = mockEvents.find(event => event.id === id);
+    
+    if (event) {
+      return {
+        code: 200,
+        message: 'Event details retrieved successfully',
+        data: event,
+      };
+    }
+    
+    return {
+      code: 404,
+      message: 'Event not found',
+      data: null,
+    };
   },
 
   // 注册活动
-  registerEvent: async (id: number): Promise<boolean> => {
+  registerEvent: async (id: number): Promise<ApiResponse<boolean>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const event = mockEvents.find(e => e.id === id);
+    
     if (event) {
       event.isRegistered = true;
       event.attendees += 1;
-      return true;
+      return {
+        code: 200,
+        message: 'Event registration successful',
+        data: true,
+      };
     }
-    return false;
+    
+    return {
+      code: 404,
+      message: 'Event not found',
+      data: false,
+    };
   },
 
   // 取消注册活动
-  unregisterEvent: async (id: number): Promise<boolean> => {
+  unregisterEvent: async (id: number): Promise<ApiResponse<boolean>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const event = mockEvents.find(e => e.id === id);
+    
     if (event && event.isRegistered) {
       event.isRegistered = false;
       event.attendees -= 1;
-      return true;
+      return {
+        code: 200,
+        message: 'Event unregistration successful',
+        data: true,
+      };
     }
-    return false;
+    
+    if (!event) {
+      return {
+        code: 404,
+        message: 'Event not found',
+        data: false,
+      };
+    }
+    
+    return {
+      code: 400,
+      message: 'You have not registered for this event',
+      data: false,
+    };
   },
-}; 
+};

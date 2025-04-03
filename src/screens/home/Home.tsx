@@ -103,10 +103,10 @@ const HomeScreen = () => {
       <View style={styles.header}>
         <Text style={styles.logo}>reKro</Text>
       </View>
-      
+
       <ScrollView style={styles.scrollView}>
         <Text style={styles.sectionTitle}>Events for You</Text>
-        
+
         {featuredEvent && (
           <TouchableOpacity
             style={styles.featuredEventCard}
@@ -120,7 +120,7 @@ const HomeScreen = () => {
             </View>
           </TouchableOpacity>
         )}
-        
+
         <FlatList
           data={eventStore.events.slice(1)}
           renderItem={renderEventItem}
@@ -128,13 +128,13 @@ const HomeScreen = () => {
           horizontal={false}
           scrollEnabled={false}
         />
-        
+
         <TouchableOpacity style={styles.exploreButton}>
           <Text style={styles.exploreButtonText}>Explore All Events</Text>
         </TouchableOpacity>
-        
+
         <Text style={styles.sectionTitle}>Reach Out To our Ambassadors</Text>
-        
+
         <FlatList
           data={ambassadors}
           renderItem={renderAmbassadorItem}
@@ -289,4 +289,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen; 
+export default HomeScreen;

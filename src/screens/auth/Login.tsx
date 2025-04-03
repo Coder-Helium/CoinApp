@@ -16,133 +16,37 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {AuthStackParamList} from '../../../App';
+import {useAuthStore} from '../../hooks/useAuthStore';
+import {observer} from 'mobx-react-lite';
 
 type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
 
-// 定义响应类型
-type LoginResponse = {
-  success: boolean;
-  token: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-  };
-};
-
-// 模拟axios请求
-const mockAxios = {
-  post: (url: string, data: any): Promise<{data: LoginResponse}> => {
-    return new Promise((resolve) => {
-      // 模拟网络延迟
-      setTimeout(() => {
-        // 始终返回成功
-        resolve({
-          data: {
-            success: true,
-            token: 'mock-jwt-token',
-            user: {
-              id: 1,
-              name: 'John Doe',
-              email: data.email,
-            },
-          },
-        });
-      }, 1000);
-    });
-  },
-};
-
-const LoginScreen = () => {
+const LoginScreen = observer(() => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
+  const authStore = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     // 简单的表单验证
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please enter both email and password');
+      Alert.alert('错误', '请输入邮箱和密码');
       return;
     }
 
     try {
-      setLoading(true);
+      const success = await authStore.login(email, password);
 
-      // 模拟API调用
-      const response = await mockAxios.post('/api/login', {
-        email,
-        password,
-      });
+      if (success) {
+        // 登录成功后重置表单
+        setEmail('');
+        setPassword('');
 
-      console.log('Login response:', response.data);
-
-      // 模拟保存token到本地存储
-      // 实际应用中应该使用AsyncStorage
-      console.log('Token saved:', response.data.token);
-
-      // 登录成功后重置表单
-      setEmail('');
-      setPassword('');
-
-      // 修改App.tsx中的isAuthenticated状态
-      // 在App.tsx中，我们需要将setIsAuthenticated函数暴露给全局
-      // 添加以下代码到App.tsx:
-      // global.setIsAuthenticated = setIsAuthenticated;
-      
-      // 尝试使用全局暴露的setIsAuthenticated函数
-      // @ts-ignore
-      if (typeof global.setIsAuthenticated === 'function') {
-        // @ts-ignore
-        global.setIsAuthenticated(true);
-        console.log('Authentication state updated via global function');
-      } else {
-        console.log('No global setIsAuthenticated function found, using alternative method');
-        
-        // 如果没有全局函数，我们可以尝试直接修改App.tsx中的状态
-        // 这种方法不是理想的，但在演示中可以工作
-        
-        // 在App.tsx中添加以下代码:
-        // useEffect(() => {
-        //   // 检查全局登录状态
-        //   const checkGlobalAuth = setInterval(() => {
-        //     if (global.isAuthenticated) {
-        //       setIsAuthenticated(true);
-        //       global.isAuthenticated = false;
-        //       clearInterval(checkGlobalAuth);
-        //     }
-        //   }, 100);
-        //   return () => clearInterval(checkGlobalAuth);
-        // }, []);
-        
-        // @ts-ignore
-        global.isAuthenticated = true;
-        
-        // 提示用户
-        Alert.alert(
-          'Login Successful',
-          'Please restart the app to see the main screen. In a real app, this would happen automatically.',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                // 重置导航栈，回到登录页面
-                // 这样用户可以再次尝试登录
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: 'Login' }],
-                });
-              },
-            },
-          ]
-        );
+        console.log('登录成功，认证状态已更新');
       }
-
     } catch (error) {
-      console.error('Login error:', error);
-      Alert.alert('Login Failed', 'An error occurred during login. Please try again.');
-    } finally {
-      setLoading(false);
+      console.error('登录错误:', error);
+      Alert.alert('登录失败', '发生错误，请稍后重试');
     }
   };
 
@@ -160,7 +64,7 @@ const LoginScreen = () => {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="Email"
+                placeholder="邮箱"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -171,7 +75,7 @@ const LoginScreen = () => {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="密码"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -180,42 +84,42 @@ const LoginScreen = () => {
 
             <TouchableOpacity
               style={styles.forgotPasswordContainer}
-              onPress={() => console.log('Forgot password')}>
-              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+              onPress={() => console.log('忘记密码')}>
+              <Text style={styles.forgotPasswordText}>忘记密码?</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.loginButton}
               onPress={handleLogin}
-              disabled={loading}>
-              {loading ? (
+              disabled={authStore.loading}>
+              {authStore.loading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text style={styles.loginButtonText}>Login</Text>
+                <Text style={styles.loginButtonText}>登录</Text>
               )}
             </TouchableOpacity>
 
             <View style={styles.signupContainer}>
-              <Text style={styles.signupText}>Don't have an account? </Text>
+              <Text style={styles.signupText}>没有账号? </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                <Text style={styles.signupLink}>Sign up</Text>
+                <Text style={styles.signupLink}>注册</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.securityContainer}>
-              <Text style={styles.securityText}>Security by</Text>
+              <Text style={styles.securityText}>安全由</Text>
               <Image
                 source={require('../../../src/assets/icons/security.png')}
                 style={styles.securityIcon}
               />
-              <Text style={styles.securityText}>Provider</Text>
+              <Text style={styles.securityText}>提供</Text>
             </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -254,12 +158,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   forgotPasswordContainer: {
-    alignSelf: 'flex-end',
+    alignItems: 'flex-end',
     marginBottom: 20,
   },
   forgotPasswordText: {
-    color: '#006400',
     fontSize: 14,
+    color: '#006400',
   },
   loginButton: {
     backgroundColor: '#006400',

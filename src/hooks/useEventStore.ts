@@ -1,6 +1,18 @@
 import {makeAutoObservable} from 'mobx';
-import {eventApi} from '../services/mock/events';
-import type {Event} from '../services/mock/events';
+import {eventApi} from '../services/api';
+
+export interface Event {
+  id: number;
+  title: string;
+  date: string;
+  description: string;
+  image?: string;
+  location?: string;
+  time?: string;
+  attendees: number;
+  isRegistered: boolean;
+  externalLink?: string;
+}
 
 class EventStore {
   events: Event[] = [];
@@ -17,7 +29,7 @@ class EventStore {
       const data = await eventApi.getEvents();
       this.events = data;
     } catch (error) {
-      console.error(error);
+      console.error('fetch events failed:', error);
     } finally {
       this.loading = false;
     }
@@ -27,9 +39,9 @@ class EventStore {
     this.loading = true;
     try {
       const data = await eventApi.getEventById(id);
-      this.currentEvent = data || null;
+      this.currentEvent = data;
     } catch (error) {
-      console.error(error);
+      console.error(`获取事件${id}详情失败:`, error);
     } finally {
       this.loading = false;
     }
@@ -51,7 +63,7 @@ class EventStore {
       }
       return success;
     } catch (error) {
-      console.error(error);
+      console.error(`注册事件${id}失败:`, error);
       return false;
     }
   }
@@ -72,7 +84,7 @@ class EventStore {
       }
       return success;
     } catch (error) {
-      console.error(error);
+      console.error(`取消注册事件${id}失败:`, error);
       return false;
     }
   }

@@ -8,36 +8,53 @@ import {
   ScrollView,
   ActivityIndicator,
   SafeAreaView,
+  Alert,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import type {StackNavigationProp} from '@react-navigation/stack';
 import {observer} from 'mobx-react-lite';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useProfileStore} from '../../hooks/useProfileStore';
-import type {ProfileStackParamList} from '../../../App';
-
-type ProfileScreenNavigationProp = StackNavigationProp<
-  ProfileStackParamList,
-  'UserProfile'
->;
+import {useAuthStore} from '../../hooks/useAuthStore';
 
 const ProfileScreen = observer(() => {
-  const navigation = useNavigation<ProfileScreenNavigationProp>();
   const profileStore = useProfileStore();
+  const authStore = useAuthStore();
 
   useEffect(() => {
     profileStore.fetchProfile();
   }, [profileStore]);
 
   const handleEditProfile = () => {
-    navigation.navigate('UserProfile');
+    // 导航到资料编辑页面
+    // 在实际应用中这可能是另一个页面
+    Alert.alert(
+      '编辑个人资料',
+      '此功能尚未实现。您可以通过ProfileSetup页面更新资料。'
+    );
   };
 
-  const handleLogout = () => {
-    // profileStore.logout();
-    console.log('Logout clicked');
-    // After logout, navigate to Login screen
-    // This navigation logic should be handled in the App.tsx based on auth state
+  const handleLogout = async () => {
+    Alert.alert(
+      '登出确认',
+      '您确定要登出吗?',
+      [
+        {
+          text: '取消',
+          style: 'cancel',
+        },
+        {
+          text: '确定',
+          onPress: async () => {
+            const success = await authStore.logout();
+            if (success) {
+              console.log('用户已登出');
+              // App会自动切换到登录页面
+            } else {
+              Alert.alert('错误', '登出失败，请稍后再试');
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (profileStore.loading) {
@@ -54,67 +71,65 @@ const ProfileScreen = observer(() => {
         <View style={styles.header}>
           <View style={styles.profileImageContainer}>
             <Image
-              source={{uri: profileStore.profile?.avatar}}
+              source={{uri: 'https://picsum.photos/200'}}
               style={styles.profileImage}
             />
           </View>
           <Text style={styles.name}>{profileStore.profile?.name}</Text>
           <Text style={styles.location}>
-            <Ionicons name="location" size={16} color="#666" /> {profileStore.profile?.country}, {profileStore.profile?.city}
+            <Ionicons name="location" size={16} color="#666" /> {profileStore.profile?.userCountry || '未设置'}, {profileStore.profile?.userCity || '未设置'}
           </Text>
           <TouchableOpacity
             style={styles.editButton}
             onPress={handleEditProfile}>
             <Ionicons name="create-outline" size={16} color="#fff" style={styles.buttonIcon} />
-            <Text style={styles.editButtonText}>Edit Profile</Text>
+            <Text style={styles.editButtonText}>编辑个人资料</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>
-            <Ionicons name="school-outline" size={20} color="#006400" style={styles.sectionIcon} /> Education
+            <Ionicons name="school-outline" size={20} color="#006400" style={styles.sectionIcon} /> 教育
           </Text>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>University/School</Text>
-            <Text style={styles.infoValue}>{profileStore.profile?.university}</Text>
+            <Text style={styles.infoLabel}>大学/学校</Text>
+            <Text style={styles.infoValue}>{profileStore.profile?.userUni || '未设置'}</Text>
           </View>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Field of Study</Text>
-            <Text style={styles.infoValue}>{profileStore.profile?.fieldOfStudy}</Text>
+            <Text style={styles.infoLabel}>学习领域</Text>
+            <Text style={styles.infoValue}>{profileStore.profile?.userField || '未设置'}</Text>
           </View>
-          {/* 注释掉不存在的属性 */}
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Level of Study</Text>
-            <Text style={styles.infoValue}>Not specified</Text>
+            <Text style={styles.infoLabel}>学习阶段</Text>
+            <Text style={styles.infoValue}>{profileStore.profile?.levelOfStudy || '未设置'}</Text>
           </View>
         </View>
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>
-            <Ionicons name="navigate-outline" size={20} color="#006400" style={styles.sectionIcon} /> Destination
+            <Ionicons name="navigate-outline" size={20} color="#006400" style={styles.sectionIcon} /> 目的地
           </Text>
-          {/* 注释掉不存在的属性 */}
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Destination City</Text>
-            <Text style={styles.infoValue}>Not specified</Text>
+            <Text style={styles.infoLabel}>目标城市</Text>
+            <Text style={styles.infoValue}>{profileStore.profile?.userCity || '未设置'}</Text>
           </View>
         </View>
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>
-            <Ionicons name="language-outline" size={20} color="#006400" style={styles.sectionIcon} /> Language
+            <Ionicons name="language-outline" size={20} color="#006400" style={styles.sectionIcon} /> 语言
           </Text>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Preferred Language</Text>
+            <Text style={styles.infoLabel}>首选语言</Text>
             <Text style={styles.infoValue}>
-              {profileStore.profile?.languages?.join(', ') || 'Not specified'}
+              {profileStore.profile?.userLanguage || '未设置'}
             </Text>
           </View>
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color="#ff3b30" style={styles.buttonIcon} />
-          <Text style={styles.logoutButtonText}>Logout</Text>
+          <Text style={styles.logoutButtonText}>登出</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -219,4 +234,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen; 
+export default ProfileScreen;
