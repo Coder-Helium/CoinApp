@@ -34,7 +34,6 @@ const ProfileScreen = observer(() => {
   };
 
   const handleLogout = () => {
-    // 注释掉不存在的方法
     // profileStore.logout();
     console.log('Logout clicked');
     // After logout, navigate to Login screen

@@ -15,7 +15,7 @@ import {observer} from 'mobx-react-lite';
 import {useProfileStore} from '../../hooks/useProfileStore';
 import type {ProfileStackParamList} from '../../../App';
 
-type UserListRouteProp = RouteProp<ProfileStackParamList, '用户列表'>;
+type UserListRouteProp = RouteProp<ProfileStackParamList, 'UserList'>;
 
 const UserListScreen = observer(() => {
   const route = useRoute<UserListRouteProp>();
