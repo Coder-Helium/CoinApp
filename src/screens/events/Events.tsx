@@ -64,11 +64,11 @@ const EventsScreen = observer(() => {
                 eventStore.registerEvent(item.id);
               }
             }}>
-            <Ionicons 
-              name={item.isRegistered ? "checkmark" : "add"} 
-              size={14} 
-              color="#fff" 
-              style={styles.buttonIcon} 
+            <Ionicons
+              name={item.isRegistered ? 'checkmark' : 'add'}
+              size={14}
+              color="#fff"
+              style={styles.buttonIcon}
             />
             <Text style={styles.registerButtonText}>
               {item.isRegistered ? 'Registered' : 'Register'}
@@ -204,4 +204,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventsScreen; 
+export default EventsScreen;

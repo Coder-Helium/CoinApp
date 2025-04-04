@@ -71,6 +71,7 @@ export type ConversationsStackParamList = {
 export type ProfileStackParamList = {
   UserProfile: undefined;
   UserList: {type: 'followers' | 'following'};
+  ProfileSetup: undefined;
 };
 
 // Create the navigators
@@ -180,6 +181,11 @@ const ProfileStackNavigator = () => {
         options={({route}) => ({
           title: route.params.type === 'followers' ? 'Followers' : 'Following',
         })}
+      />
+      <ProfileStack.Screen
+        name="ProfileSetup"
+        component={ProfileSetupScreen}
+        options={{title: 'Edit Profile'}}
       />
     </ProfileStack.Navigator>
   );

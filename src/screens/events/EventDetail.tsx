@@ -42,7 +42,7 @@ const EventDetailScreen = observer(() => {
   }, [eventStore.currentEvent, navigation]);
 
   const handleRegister = async () => {
-    if (!eventStore.currentEvent) return;
+    if (!eventStore.currentEvent) {return;}
 
     if (eventStore.currentEvent.isRegistered) {
       await eventStore.unregisterEvent(eventStore.currentEvent.id);
@@ -108,11 +108,11 @@ const EventDetailScreen = observer(() => {
               event.isRegistered && styles.registeredButton,
             ]}
             onPress={handleRegister}>
-            <Ionicons 
-              name={event.isRegistered ? "close-circle-outline" : "checkmark-circle-outline"} 
-              size={20} 
-              color="#fff" 
-              style={styles.buttonIcon} 
+            <Ionicons
+              name={event.isRegistered ? 'close-circle-outline' : 'checkmark-circle-outline'}
+              size={20}
+              color="#fff"
+              style={styles.buttonIcon}
             />
             <Text style={styles.registerButtonText}>
               {event.isRegistered ? 'Cancel Registration' : 'Register Now'}
@@ -215,4 +215,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventDetailScreen; 
+export default EventDetailScreen;

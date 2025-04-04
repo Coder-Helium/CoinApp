@@ -65,7 +65,7 @@ class ProfileStore {
     this.loading = true;
     try {
       const response = await userApi.updateUserProfile(this.profile.id, profileData);
-      
+
       if (response.code === 200) {
         // Update local profile
         this.profile = {...this.profile, ...response.data};
@@ -118,8 +118,8 @@ class ProfileStore {
 
   // Get followers list
   async fetchFollowers() {
-    if (!this.profile?.id) return;
-    
+    if (!this.profile?.id) {return;}
+
     this.loading = true;
     try {
       const response = await friendApi.getFriendList(this.profile.id);
@@ -128,8 +128,8 @@ class ProfileStore {
         id: item.Friend_ID,
         name: item.friend_name,
         avatar: `https://picsum.photos/id/${item.Friend_ID % 100}/200`,
-        bio: "User bio",
-        isFollowing: false
+        bio: 'User bio',
+        isFollowing: false,
       }));
     } catch (error) {
       console.error('Error fetching followers list:', error);
@@ -140,8 +140,8 @@ class ProfileStore {
 
   // Get following list
   async fetchFollowing() {
-    if (!this.profile?.id) return;
-    
+    if (!this.profile?.id) {return;}
+
     this.loading = true;
     try {
       const response = await friendApi.getFriendList(this.profile.id);
@@ -150,8 +150,8 @@ class ProfileStore {
         id: item.Friend_ID,
         name: item.friend_name,
         avatar: `https://picsum.photos/id/${item.Friend_ID % 100}/200`,
-        bio: "User bio",
-        isFollowing: true
+        bio: 'User bio',
+        isFollowing: true,
       }));
     } catch (error) {
       console.error('Error fetching following list:', error);
@@ -162,8 +162,8 @@ class ProfileStore {
 
   // Follow user
   async followUser(userId: number) {
-    if (!this.profile?.id) return false;
-    
+    if (!this.profile?.id) {return false;}
+
     try {
       const success = await friendApi.sendFriendRequest(this.profile.id, userId);
       if (success) {
@@ -182,8 +182,8 @@ class ProfileStore {
 
   // Unfollow user
   async unfollowUser(userId: number) {
-    if (!this.profile?.id) return false;
-    
+    if (!this.profile?.id) {return false;}
+
     try {
       // Here we assume using 'reject' action to unfollow
       const success = await friendApi.processFriendRequest(this.profile.id, userId, 'reject');
@@ -204,4 +204,4 @@ class ProfileStore {
 
 const profileStore = new ProfileStore();
 
-export const useProfileStore = () => profileStore; 
+export const useProfileStore = () => profileStore;

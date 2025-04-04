@@ -307,4 +307,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ConnectionsScreen; 
+export default ConnectionsScreen;

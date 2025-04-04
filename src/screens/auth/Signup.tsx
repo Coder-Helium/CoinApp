@@ -18,9 +18,10 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import type {AuthStackParamList} from '../../../App';
 import {useAuthStore} from '../../hooks/useAuthStore';
 import {observer} from 'mobx-react-lite';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type SignupScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Signup'>;
-
+// todo: profile页面要加个返回按钮
 const SignupScreen = observer(() => {
   const navigation = useNavigation<SignupScreenNavigationProp>();
   const authStore = useAuthStore();
@@ -30,7 +31,7 @@ const SignupScreen = observer(() => {
   const [name, setName] = useState('');
 
   const handleSignup = async () => {
-    // 表单验证
+    // Form validation
     if (!email.trim() || !password.trim() || !confirmPassword.trim() || !name.trim()) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
@@ -46,31 +47,27 @@ const SignupScreen = observer(() => {
       return;
     }
 
-    // 用户注册只有基本信息，其他信息需要在个人资料设置页面填写
+    // User registration only has basic information, other info will be filled in profile setup page
     try {
       const userData = {
         name: name,
         email: email,
         password: password,
-        level_of_study: "", // 这些字段将在ProfileSetup中设置
-        userCountry: "",
-        userRegions: "",
-        userCity: "",
-        userField: "",
-        userUni: "",
-        userLanguage: "",
+        level_of_study: '', // These fields will be set in ProfileSetup
+        userCountry: '',
+        userRegions: '',
+        userCity: '',
+        userField: '',
+        userUni: '',
+        userLanguage: '',
       };
-      
-      const success = await authStore.register(userData);
-      
-      if (success) {
-        // 注册成功后导航到个人资料设置页面
-        navigation.navigate('ProfileSetup');
-      }
+
+      // Don't call register API, just save registration data
+      await AsyncStorage.setItem('temp_signup_data', JSON.stringify(userData));
+      navigation.navigate('ProfileSetup');
     } catch (error) {
-      console.error('注册错误:', error);
-      console.error('Registration error:', error);
-      Alert.alert('Registration Failed', 'An error occurred, please try again later');
+      console.error('Error saving registration info:', error);
+      Alert.alert('Error', 'There was a problem saving your information. Please try again later.');
     }
   };
 
@@ -82,9 +79,9 @@ const SignupScreen = observer(() => {
         <ScrollView contentContainerStyle={styles.scrollView}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
+              {/* TODO: Add back button icon */}
               <Text style={styles.backButton}>{'<'}</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Create Your Account</Text>
           </View>
 
           <Text style={styles.subtitle}>Please fill in the following information to create your account</Text>

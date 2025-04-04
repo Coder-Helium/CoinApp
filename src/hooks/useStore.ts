@@ -50,4 +50,4 @@ class Store {
 
 const store = new Store();
 
-export const useStore = () => store; 
+export const useStore = () => store;

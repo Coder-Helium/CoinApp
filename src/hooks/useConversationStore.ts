@@ -46,7 +46,7 @@ class ConversationStore {
   }
 
   async sendMessage(text: string) {
-    if (!this.currentUserId || !text.trim()) return;
+    if (!this.currentUserId || !text.trim()) {return;}
 
     this.sendingMessage = true;
     try {
@@ -81,4 +81,4 @@ class ConversationStore {
 
 const conversationStore = new ConversationStore();
 
-export const useConversationStore = () => conversationStore; 
+export const useConversationStore = () => conversationStore;

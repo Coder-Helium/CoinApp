@@ -95,4 +95,4 @@ class EventStore {
 
 const eventStore = new EventStore();
 
-export const useEventStore = () => eventStore; 
+export const useEventStore = () => eventStore;

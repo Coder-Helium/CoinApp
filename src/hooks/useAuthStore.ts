@@ -1,7 +1,7 @@
 import {makeAutoObservable} from 'mobx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert} from 'react-native';
-//import { mockLoginResponse } from '../services/mock/login';
+import { mockLoginResponse } from '../services/mock/login';
 
 // User type
 export interface User {
@@ -57,20 +57,20 @@ class AuthStore {
     this.loading = true;
 
     try {
-      //const response = await fetch('http://localhost:8080/user/login', {
-      const response = await fetch('http://172.20.10.5:8080/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      // const response = await fetch('http://localhost:8080/user/login', {
+      // //const response = await fetch('http://172.20.10.5:8080/user/login', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     email,
+      //     password,
+      //   }),
+      // });
 
-      const result = await response.json();
-      //const result = mockLoginResponse(email, password);
+      //const result = await response.json();
+      const result = mockLoginResponse(email, password);
 
       if (result.code === 200) {
         this.user = result.data;
@@ -128,8 +128,9 @@ class AuthStore {
       const result = await response.json();
 
       if (result.code === 200) {
-        // After successful registration, do not log in automatically, user needs to log in manually
-        Alert.alert('Registration Successful', 'Please log in with your email and password');
+        // After successful registration, do not log in automatically
+        // User will need to log in manually
+        Alert.alert('Registration Successful', 'Your account has been created. Please log in with your credentials.');
         return true;
       } else {
         Alert.alert('Registration Failed', result.message);
@@ -157,8 +158,13 @@ class AuthStore {
     this.loading = true;
 
     try {
-      // 获取token
+      // Get token
       const token = await AsyncStorage.getItem('token');
+
+      if (!token) {
+        console.error('No token found for profile update');
+        return false;
+      }
 
       const response = await fetch(`http://localhost:8080/user/${userId}`, {
         method: 'PUT',
@@ -172,7 +178,7 @@ class AuthStore {
       const result = await response.json();
 
       if (result.code === 200) {
-        // 更新本地用户信息
+        // Update user info in local state
         if (this.user) {
           this.user = {...this.user, ...result.data};
           await AsyncStorage.setItem('user', JSON.stringify(this.user));

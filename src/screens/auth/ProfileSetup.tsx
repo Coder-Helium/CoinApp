@@ -14,20 +14,23 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
-import type {AuthStackParamList} from '../../../App';
+import type {CompositeNavigationProp} from '@react-navigation/native';
+import type {AuthStackParamList, ProfileStackParamList} from '../../../App';
 import {useAuthStore} from '../../hooks/useAuthStore';
 import {observer} from 'mobx-react-lite';
 import {userApi} from '../../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type ProfileSetupScreenNavigationProp = StackNavigationProp<
-  AuthStackParamList,
-  'ProfileSetup'
+// Define a composite navigation type that works for both stacks
+type ProfileSetupScreenNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<AuthStackParamList, 'ProfileSetup'>,
+  StackNavigationProp<ProfileStackParamList>
 >;
 
 const ProfileSetupScreen = observer(() => {
   const navigation = useNavigation<ProfileSetupScreenNavigationProp>();
   const authStore = useAuthStore();
-  
+
   const [country, setCountry] = useState('');
   const [region, setRegion] = useState('');
   const [city, setCity] = useState('');
@@ -35,13 +38,72 @@ const ProfileSetupScreen = observer(() => {
   const [levelOfStudy, setLevelOfStudy] = useState('');
   const [university, setUniversity] = useState('');
   const [language, setLanguage] = useState('');
-  
+
   const [_countries, setCountries] = useState<Array<{code: string, name: string}>>([]);
   const [_regions, setRegions] = useState<Array<{code: string, name: string}>>([]);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const [tempSignupData, setTempSignupData] = useState<any>(null);
 
-  // 加载国家列表
+  // Determine if this is registration or profile editing
+  const isRegistration = !authStore.isAuthenticated;
+
+  // Pre-populate fields with user data when in edit mode
+  useEffect(() => {
+    if (!isRegistration && authStore.user) {
+      // Set fields from user data
+      setCountry(authStore.user.userCountry || '');
+      setRegion(authStore.user.userRegions || '');
+      setCity(authStore.user.userCity || '');
+      setFieldOfStudy(authStore.user.userField || '');
+      setLevelOfStudy(authStore.user.levelOfStudy || '');
+      setUniversity(authStore.user.userUni || '');
+      setLanguage(authStore.user.userLanguage || '');
+    }
+  }, [
+    isRegistration,
+    authStore.user,
+    authStore.user?.userCountry,
+    authStore.user?.userRegions,
+    authStore.user?.userCity,
+    authStore.user?.userField,
+    authStore.user?.levelOfStudy,
+    authStore.user?.userUni,
+    authStore.user?.userLanguage,
+  ]);
+
+  // Load signup data from AsyncStorage if in registration flow
+  useEffect(() => {
+    const loadSignupData = async () => {
+      if (isRegistration) {
+        try {
+          const signupDataJson = await AsyncStorage.getItem('temp_signup_data');
+          if (signupDataJson) {
+            setTempSignupData(JSON.parse(signupDataJson));
+          } else {
+            // No signup data found - this indicates the user has not gone through the proper signup flow
+            Alert.alert(
+              'Sign Up Required',
+              'Please complete the sign up form first before proceeding to profile setup.',
+              [
+                {
+                  text: 'Go to Sign Up',
+                  onPress: () => navigation.navigate('Signup'),
+                },
+              ]
+            );
+          }
+        } catch (error) {
+          console.error('Error loading signup data:', error);
+          Alert.alert('Error', 'There was a problem loading your registration data. Please try again.');
+          navigation.navigate('Signup');
+        }
+      }
+    };
+
+    loadSignupData();
+  }, [isRegistration, navigation]);
+
   // Load country list
   useEffect(() => {
     const fetchCountries = async () => {
@@ -49,7 +111,6 @@ const ProfileSetupScreen = observer(() => {
         const data = await userApi.getCountries();
         setCountries(data || []);
       } catch (error) {
-        console.error('获取国家列表失败:', error);
         console.error('Failed to get country list:', error);
       } finally {
         setLoadingData(false);
@@ -59,19 +120,16 @@ const ProfileSetupScreen = observer(() => {
     fetchCountries();
   }, []);
 
-  // 当选择国家后获取地区列表
   // Get region list after selecting a country
   useEffect(() => {
     if (country) {
       const fetchRegions = async () => {
         setLoadingData(true);
         try {
-          // 假设country存储的是国家代码
           // Assume country stores the country code
           const data = await userApi.getRegions(country);
           setRegions(data || []);
         } catch (error) {
-          console.error('获取地区列表失败:', error);
           console.error('Failed to get region list:', error);
         } finally {
           setLoadingData(false);
@@ -83,7 +141,6 @@ const ProfileSetupScreen = observer(() => {
   }, [country]);
 
   const handleComplete = async () => {
-    // 验证必填字段
     // Validate required fields
     if (!country || !region || !city || !fieldOfStudy || !levelOfStudy || !university || !language) {
       Alert.alert('Error', 'Please fill in all fields');
@@ -92,7 +149,6 @@ const ProfileSetupScreen = observer(() => {
 
     setLoading(true);
     try {
-      // 构建个人资料数据
       // Build profile data
       const profileData = {
         userCountry: country,
@@ -104,27 +160,65 @@ const ProfileSetupScreen = observer(() => {
         userLanguage: language,
       };
 
-      // 检查是否有当前用户ID
-      // Check if there is a current user ID
-      if (!authStore.user?.id) {
-        // 这里应该不会发生，因为通常个人资料设置是在注册后、登录前
-        // This should not happen, as profile setup is usually done after registration but before login
-        Alert.alert('Error', 'Please login first before completing your profile');
-        navigation.navigate('Login');
-        return;
-      }
+      // Differentiate between registration flow and profile update flow
+      if (isRegistration) {
+        // Registration flow - user is not logged in, this is the final step of registration
+        if (!tempSignupData) {
+          Alert.alert('Error', 'Registration data is missing. Please try again.');
+          navigation.navigate('Signup');
+          return;
+        }
 
-      const success = await authStore.updateProfile(authStore.user.id, profileData);
+        // Create the complete registration data
+        const completeRegistrationData = {
+          ...tempSignupData,
+          ...profileData,
+        };
 
-      if (success) {
-        Alert.alert('Success', 'Your profile has been updated');
-        // 完成后可以导航到主页面
-        // After completion, can navigate to main page
-        // 此时App.tsx会检测到认证状态变化并显示主标签导航
-        // At this point, App.tsx will detect authentication state change and display main tab navigation
+        // Call the register API
+        const success = await authStore.register(completeRegistrationData);
+
+        if (success) {
+          // Clean up the temporary signup data
+          await AsyncStorage.removeItem('temp_signup_data');
+
+          Alert.alert(
+            'Success',
+            'Your account has been created successfully. Please login to continue.',
+            [
+              {
+                text: 'Go to Login',
+                onPress: () => {
+                  navigation.navigate('Login');
+                },
+              },
+            ]
+          );
+        }
+      } else {
+        // Profile update flow - user is already logged in, just updating their profile
+        if (!authStore.user?.id) {
+          Alert.alert('Error', 'Please login first before updating your profile');
+          navigation.navigate('Login');
+          return;
+        }
+
+        const success = await authStore.updateProfile(authStore.user.id, profileData);
+
+        if (success) {
+          Alert.alert(
+            'Success',
+            'Your profile has been updated successfully',
+            [
+              {
+                text: 'Back',
+                onPress: () => navigation.goBack(),
+              },
+            ]
+          );
+        }
       }
     } catch (error) {
-      console.error('完善个人资料错误:', error);
       console.error('Error completing profile:', error);
       Alert.alert('Error', 'An error occurred while updating your profile');
     } finally {
@@ -147,15 +241,6 @@ const ProfileSetupScreen = observer(() => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidView}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text style={styles.backButton}>{'<'}</Text>
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Complete Your Profile</Text>
-          </View>
-
-          <Text style={styles.subtitle}>Please fill in the following information to complete your profile</Text>
-
           <View style={styles.formContainer}>
             <View style={styles.fieldContainer}>
               <Text style={styles.fieldLabel}>Current Country</Text>
@@ -255,7 +340,9 @@ const ProfileSetupScreen = observer(() => {
               {loading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text style={styles.completeButtonText}>Complete Profile</Text>
+                <Text style={styles.completeButtonText}>
+                  {isRegistration ? 'Complete Profile' : 'Update Profile'}
+                </Text>
               )}
             </TouchableOpacity>
           </View>

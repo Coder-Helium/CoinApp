@@ -14,10 +14,16 @@ import {observer} from 'mobx-react-lite';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useProfileStore} from '../../hooks/useProfileStore';
 import {useAuthStore} from '../../hooks/useAuthStore';
+import {useNavigation} from '@react-navigation/native';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {ProfileStackParamList} from '../../../App';
+
+type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'UserProfile'>;
 
 const ProfileScreen = observer(() => {
   const profileStore = useProfileStore();
   const authStore = useAuthStore();
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
 
   useEffect(() => {
     profileStore.fetchProfile();
@@ -74,7 +80,7 @@ const ProfileScreen = observer(() => {
           </Text>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={() => navigation.navigate('Events')}>
+            onPress={() => navigation.navigate('ProfileSetup')}>
             <Ionicons name="create-outline" size={16} color="#fff" style={styles.buttonIcon} />
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
