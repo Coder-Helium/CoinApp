@@ -1,7 +1,7 @@
 import {makeAutoObservable} from 'mobx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert} from 'react-native';
-import { mockLoginResponse } from '../services/mock/login';
+//import { mockLoginResponse } from '../services/mock/login';
 
 // User type
 export interface User {
@@ -57,19 +57,20 @@ class AuthStore {
     this.loading = true;
 
     try {
-    //   const response = await fetch('http://localhost:8080/user/login', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       email,
-    //       password,
-    //     }),
-    //   });
+      //const response = await fetch('http://localhost:8080/user/login', {
+      const response = await fetch('http://172.20.10.5:8080/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-      // const result = await response.json();
-      const result = mockLoginResponse(email, password);
+      const result = await response.json();
+      //const result = mockLoginResponse(email, password);
 
       if (result.code === 200) {
         this.user = result.data;

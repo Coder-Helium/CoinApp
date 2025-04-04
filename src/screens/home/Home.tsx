@@ -63,7 +63,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     if (eventStore.events.length > 0) {
-      setFeaturedEvent(eventStore.events[0]);
+      setFeaturedEvent(eventStore.events[1]);
     }
   }, [eventStore.events]);
 
@@ -105,6 +105,16 @@ const HomeScreen = () => {
       </View>
 
       <ScrollView style={styles.scrollView}>
+      <Text style={styles.sectionTitle}>Reach Out To our Ambassadors</Text>
+
+        <FlatList
+          data={ambassadors}
+          renderItem={renderAmbassadorItem}
+          keyExtractor={item => item.id.toString()}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.ambassadorsList}
+        />
         <Text style={styles.sectionTitle}>Events for You</Text>
 
         {featuredEvent && (
@@ -129,20 +139,11 @@ const HomeScreen = () => {
           scrollEnabled={false}
         />
 
-        <TouchableOpacity style={styles.exploreButton}>
+        <TouchableOpacity
+          style={styles.exploreButton}
+          onPress={() => navigation.navigate('Events')}>
           <Text style={styles.exploreButtonText}>Explore All Events</Text>
         </TouchableOpacity>
-
-        <Text style={styles.sectionTitle}>Reach Out To our Ambassadors</Text>
-
-        <FlatList
-          data={ambassadors}
-          renderItem={renderAmbassadorItem}
-          keyExtractor={item => item.id.toString()}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.ambassadorsList}
-        />
       </ScrollView>
     </SafeAreaView>
   );

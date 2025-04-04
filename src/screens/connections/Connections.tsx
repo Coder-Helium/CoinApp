@@ -63,12 +63,35 @@ const connectionRequests = [
 const ConnectionsScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+              <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Find Connections</Text>
+          <View style={styles.findConnectionsOptions}>
+            <TouchableOpacity style={styles.findOption}>
+              <View style={styles.findOptionIcon}>
+                <Ionicons name="school-outline" size={24} color="#006400" />
+              </View>
+              <Text style={styles.findOptionText}>By University</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.findOption}>
+              <View style={styles.findOptionIcon}>
+                <Ionicons name="location-outline" size={24} color="#006400" />
+              </View>
+              <Text style={styles.findOptionText}>By Location</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.findOption}>
+              <View style={styles.findOptionIcon}>
+                <Ionicons name="book-outline" size={24} color="#006400" />
+              </View>
+              <Text style={styles.findOptionText}>By Interest</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      {/* <View style={styles.header}>
         <Text style={styles.headerTitle}>Connections</Text>
         <TouchableOpacity style={styles.searchButton}>
           <Ionicons name="search" size={24} color="#333" />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.section}>
@@ -121,29 +144,7 @@ const ConnectionsScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Find Connections</Text>
-          <View style={styles.findConnectionsOptions}>
-            <TouchableOpacity style={styles.findOption}>
-              <View style={styles.findOptionIcon}>
-                <Ionicons name="school-outline" size={24} color="#006400" />
-              </View>
-              <Text style={styles.findOptionText}>By University</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.findOption}>
-              <View style={styles.findOptionIcon}>
-                <Ionicons name="location-outline" size={24} color="#006400" />
-              </View>
-              <Text style={styles.findOptionText}>By Location</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.findOption}>
-              <View style={styles.findOptionIcon}>
-                <Ionicons name="book-outline" size={24} color="#006400" />
-              </View>
-              <Text style={styles.findOptionText}>By Interest</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+
       </ScrollView>
     </SafeAreaView>
   );

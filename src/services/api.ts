@@ -5,7 +5,7 @@ import { mockEventApi } from './mock/events';
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://172.20.10.5:8080',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -123,8 +123,7 @@ export const userApi = {
         size: size.toString(),
         ...params,
       });
-      
-      const response = await api.get(`/user/randomPage?${queryParams}`);
+          const response = await api.get(`/user/randomPage?${queryParams}`);
       if (response.data.code === 200) {
         return response.data.data;
       }
@@ -141,10 +140,12 @@ export const eventApi = {
   // 获取事件列表
   getEvents: async () => {
     try {
-      //const response = await api.get('/event/list');
-      const response = await mockEventApi.getEvents();
-      if (response.code === 200) {
-        return response.data.map((event: any) => ({
+      const response = await api.get('/event/list');
+      console.log('response', response);
+      //const response = await mockEventApi.getEvents();
+      console.log('response', response);
+      if (response.data.code === 200) {
+        return response.data.data.map((event: any) => ({
           id: event.id,
           title: event.title,
           date: event.date,

@@ -23,12 +23,6 @@ const ProfileScreen = observer(() => {
     profileStore.fetchProfile();
   }, [profileStore]);
 
-  const handleEditProfile = () => {
-    Alert.alert(
-      'Edit Profile',
-      'This feature is not yet implemented. You can update your profile through the ProfileSetup page.'
-    );
-  };
 
   const handleLogout = async () => {
     Alert.alert(
@@ -44,12 +38,10 @@ const ProfileScreen = observer(() => {
           onPress: async () => {
             const success = await authStore.logout();
             if (success) {
-              console.log('用户已登出');
               console.log('User logged out');
               // App会自动切换到登录页面
               // App will automatically switch to login page
             } else {
-              Alert.alert('错误', '登出失败，请稍后再试');
               Alert.alert('Error', 'Logout failed, please try again later');
             }
           },
@@ -82,7 +74,7 @@ const ProfileScreen = observer(() => {
           </Text>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={handleEditProfile}>
+            onPress={() => navigation.navigate('Events')}>
             <Ionicons name="create-outline" size={16} color="#fff" style={styles.buttonIcon} />
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
