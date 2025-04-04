@@ -3,7 +3,7 @@ import {userApi, friendApi} from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {User} from './useAuthStore';
 
-// 关注者用户类型
+// Follower user type
 export interface FollowerUser {
   id: number;
   name: string;
@@ -23,7 +23,7 @@ class ProfileStore {
     this.init();
   }
 
-  // 初始化时从本地存储获取用户信息
+  // Initialize: Get user information from local storage
   async init() {
     try {
       const userJson = await AsyncStorage.getItem('user');
@@ -31,13 +31,13 @@ class ProfileStore {
         this.profile = JSON.parse(userJson);
       }
     } catch (error) {
-      console.error('初始化用户资料错误:', error);
+      console.error('Error initializing user profile:', error);
     }
   }
 
-  // 获取当前用户资料
+  // Get current user profile
   async fetchProfile() {
-    // 如果已有用户资料，直接使用
+    // If profile already exists, use it directly
     if (this.profile) {
       return;
     }
@@ -49,16 +49,16 @@ class ProfileStore {
         this.profile = JSON.parse(userJson);
       }
     } catch (error) {
-      console.error('获取用户资料错误:', error);
+      console.error('Error fetching user profile:', error);
     } finally {
       this.loading = false;
     }
   }
 
-  // 更新用户资料
+  // Update user profile
   async updateProfile(profileData: Partial<User>) {
     if (!this.profile?.id) {
-      console.error('没有当前用户ID，无法更新资料');
+      console.error('No current user ID, cannot update profile');
       return false;
     }
 
@@ -67,25 +67,25 @@ class ProfileStore {
       const response = await userApi.updateUserProfile(this.profile.id, profileData);
       
       if (response.code === 200) {
-        // 更新本地资料
+        // Update local profile
         this.profile = {...this.profile, ...response.data};
-        // 更新本地存储
+        // Update local storage
         await AsyncStorage.setItem('user', JSON.stringify(this.profile));
         return true;
       }
       return false;
     } catch (error) {
-      console.error('更新用户资料错误:', error);
+      console.error('Error updating user profile:', error);
       return false;
     } finally {
       this.loading = false;
     }
   }
 
-  // 获取当前用户的peer match信息
+  // Get current user's peer match information
   async fetchPeerMatchInfo() {
     if (!this.profile?.id) {
-      console.error('没有当前用户ID，无法获取peer match信息');
+      console.error('No current user ID, cannot fetch peer match information');
       return null;
     }
 
@@ -93,12 +93,12 @@ class ProfileStore {
       const data = await userApi.getPeerMatchInfo(this.profile.id);
       return data;
     } catch (error) {
-      console.error('获取peer match信息错误:', error);
+      console.error('Error fetching peer match information:', error);
       return null;
     }
   }
 
-  // 获取相似用户
+  // Get similar users
   async fetchRandomUsers(page: number = 1, size: number = 10, params: Partial<{
     university: string;
     city: string;
@@ -109,65 +109,65 @@ class ProfileStore {
       const data = await userApi.getRandomUsers(page, size, params);
       return data;
     } catch (error) {
-      console.error('获取相似用户错误:', error);
+      console.error('Error fetching similar users:', error);
       return { records: [], total: 0, size, current: page, pages: 0 };
     } finally {
       this.loading = false;
     }
   }
 
-  // 获取粉丝列表
+  // Get followers list
   async fetchFollowers() {
     if (!this.profile?.id) return;
     
     this.loading = true;
     try {
       const response = await friendApi.getFriendList(this.profile.id);
-      // 将返回数据转换为需要的格式
+      // Convert returned data to required format
       this.followers = response.map((item: any) => ({
         id: item.Friend_ID,
         name: item.friend_name,
         avatar: `https://picsum.photos/id/${item.Friend_ID % 100}/200`,
-        bio: "用户简介",
+        bio: "User bio",
         isFollowing: false
       }));
     } catch (error) {
-      console.error('获取粉丝列表错误:', error);
+      console.error('Error fetching followers list:', error);
     } finally {
       this.loading = false;
     }
   }
 
-  // 获取关注列表
+  // Get following list
   async fetchFollowing() {
     if (!this.profile?.id) return;
     
     this.loading = true;
     try {
       const response = await friendApi.getFriendList(this.profile.id);
-      // 将返回数据转换为需要的格式
+      // Convert returned data to required format
       this.following = response.map((item: any) => ({
         id: item.Friend_ID,
         name: item.friend_name,
         avatar: `https://picsum.photos/id/${item.Friend_ID % 100}/200`,
-        bio: "用户简介",
+        bio: "User bio",
         isFollowing: true
       }));
     } catch (error) {
-      console.error('获取关注列表错误:', error);
+      console.error('Error fetching following list:', error);
     } finally {
       this.loading = false;
     }
   }
 
-  // 关注用户
+  // Follow user
   async followUser(userId: number) {
     if (!this.profile?.id) return false;
     
     try {
       const success = await friendApi.sendFriendRequest(this.profile.id, userId);
       if (success) {
-        // 更新用户状态
+        // Update user status
         const follower = this.followers.find(f => f.id === userId);
         if (follower) {
           follower.isFollowing = true;
@@ -175,20 +175,20 @@ class ProfileStore {
       }
       return success;
     } catch (error) {
-      console.error('关注用户错误:', error);
+      console.error('Error following user:', error);
       return false;
     }
   }
 
-  // 取消关注
+  // Unfollow user
   async unfollowUser(userId: number) {
     if (!this.profile?.id) return false;
     
     try {
-      // 这里假设使用'reject'动作来取消关注
+      // Here we assume using 'reject' action to unfollow
       const success = await friendApi.processFriendRequest(this.profile.id, userId, 'reject');
       if (success) {
-        // 更新用户状态
+        // Update user status
         const following = this.following.find(f => f.id === userId);
         if (following) {
           following.isFollowing = false;
@@ -196,7 +196,7 @@ class ProfileStore {
       }
       return success;
     } catch (error) {
-      console.error('取消关注错误:', error);
+      console.error('Error unfollowing user:', error);
       return false;
     }
   }

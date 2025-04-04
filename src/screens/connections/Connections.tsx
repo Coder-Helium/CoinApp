@@ -11,6 +11,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // 模拟推荐连接数据
+// Mock recommended connection data
 const recommendedConnections = [
   {
     id: 1,
@@ -39,6 +40,7 @@ const recommendedConnections = [
 ];
 
 // 模拟活动数据
+// Mock connection request data
 const connectionRequests = [
   {
     id: 1,

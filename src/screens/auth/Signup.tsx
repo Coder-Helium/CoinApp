@@ -32,17 +32,17 @@ const SignupScreen = observer(() => {
   const handleSignup = async () => {
     // 表单验证
     if (!email.trim() || !password.trim() || !confirmPassword.trim() || !name.trim()) {
-      Alert.alert('错误', '请填写所有必填字段');
+      Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('错误', '两次输入的密码不匹配');
+      Alert.alert('Error', 'Passwords do not match');
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert('错误', '密码至少需要8个字符');
+      Alert.alert('Error', 'Password must be at least 8 characters');
       return;
     }
 
@@ -69,7 +69,8 @@ const SignupScreen = observer(() => {
       }
     } catch (error) {
       console.error('注册错误:', error);
-      Alert.alert('注册失败', '发生错误，请稍后重试');
+      console.error('Registration error:', error);
+      Alert.alert('Registration Failed', 'An error occurred, please try again later');
     }
   };
 
@@ -83,16 +84,16 @@ const SignupScreen = observer(() => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Text style={styles.backButton}>{'<'}</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>创建您的账户</Text>
+            <Text style={styles.headerTitle}>Create Your Account</Text>
           </View>
 
-          <Text style={styles.subtitle}>请填写以下信息创建您的账户</Text>
+          <Text style={styles.subtitle}>Please fill in the following information to create your account</Text>
 
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="姓名"
+                placeholder="Name"
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
@@ -102,7 +103,7 @@ const SignupScreen = observer(() => {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="邮箱"
+                placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -113,7 +114,7 @@ const SignupScreen = observer(() => {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="密码"
+                placeholder="Password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -123,14 +124,14 @@ const SignupScreen = observer(() => {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="确认密码"
+                placeholder="Confirm Password"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
               />
             </View>
 
-            <Text style={styles.passwordHint}>密码必须至少包含8个字符</Text>
+            <Text style={styles.passwordHint}>Password must contain at least 8 characters</Text>
 
             <TouchableOpacity
               style={styles.signupButton}
@@ -139,24 +140,24 @@ const SignupScreen = observer(() => {
               {authStore.loading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text style={styles.signupButtonText}>继续</Text>
+                <Text style={styles.signupButtonText}>Continue</Text>
               )}
             </TouchableOpacity>
 
             <View style={styles.loginContainer}>
-              <Text style={styles.loginText}>已有账号? </Text>
+              <Text style={styles.loginText}>Already have an account? </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.loginLink}>登录</Text>
+                <Text style={styles.loginLink}>Login</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.securityContainer}>
-              <Text style={styles.securityText}>安全由</Text>
+              <Text style={styles.securityText}>Security by</Text>
               <Image
                 source={require('../../../src/assets/icons/security.png')}
                 style={styles.securityIcon}
               />
-              <Text style={styles.securityText}>提供</Text>
+              <Text style={styles.securityText}>Provider</Text>
             </View>
           </View>
         </ScrollView>

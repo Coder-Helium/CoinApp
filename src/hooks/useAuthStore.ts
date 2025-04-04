@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert} from 'react-native';
 import { mockLoginResponse } from '../services/mock/login';
 
-// 用户类型
+// User type
 export interface User {
   id: number;
   name: string;
@@ -30,7 +30,7 @@ class AuthStore {
     this.init();
   }
 
-  // 初始化：检查本地存储是否有用户信息和token
+  // Initialize: Check if user information and token exist in local storage
   async init() {
     try {
       const userJson = await AsyncStorage.getItem('user');
@@ -40,7 +40,7 @@ class AuthStore {
         this.user = JSON.parse(userJson);
         this.isAuthenticated = true;
 
-        // 设置全局认证状态
+        // Set global authentication state
         // @ts-ignore
         if (typeof global.setIsAuthenticated === 'function') {
           // @ts-ignore
@@ -48,11 +48,11 @@ class AuthStore {
         }
       }
     } catch (error) {
-      console.error('初始化认证状态错误:', error);
+      console.error('Error initializing authentication state:', error);
     }
   }
 
-  // 登录
+  // Login
   async login(email: string, password: string) {
     this.loading = true;
 
@@ -75,11 +75,11 @@ class AuthStore {
         this.user = result.data;
         this.isAuthenticated = true;
 
-        // 保存用户信息和token到本地存储
+        // Save user information and token to local storage
         await AsyncStorage.setItem('user', JSON.stringify(result.data));
         await AsyncStorage.setItem('token', result.data.token);
 
-        // 设置全局认证状态
+        // Set global authentication state
         // @ts-ignore
         if (typeof global.setIsAuthenticated === 'function') {
           // @ts-ignore
@@ -88,19 +88,19 @@ class AuthStore {
 
         return true;
       } else {
-        Alert.alert('登录失败', result.message);
+        Alert.alert('Login Failed', result.message);
         return false;
       }
     } catch (error) {
-      console.error('登录错误:', error);
-      Alert.alert('登录失败', '网络请求失败，请稍后再试');
+      console.error('Login error:', error);
+      Alert.alert('Login Failed', 'Network request failed, please try again later');
       return false;
     } finally {
       this.loading = false;
     }
   }
 
-  // 注册
+  // Register
   async register(userData: {
     name: string;
     email: string;
@@ -127,23 +127,23 @@ class AuthStore {
       const result = await response.json();
 
       if (result.code === 200) {
-        // 注册成功后不自动登录，需要用户手动登录
-        Alert.alert('注册成功', '请使用您的邮箱和密码登录');
+        // After successful registration, do not log in automatically, user needs to log in manually
+        Alert.alert('Registration Successful', 'Please log in with your email and password');
         return true;
       } else {
-        Alert.alert('注册失败', result.message);
+        Alert.alert('Registration Failed', result.message);
         return false;
       }
     } catch (error) {
-      console.error('注册错误:', error);
-      Alert.alert('注册失败', '网络请求失败，请稍后再试');
+      console.error('Registration error:', error);
+      Alert.alert('Registration Failed', 'Network request failed, please try again later');
       return false;
     } finally {
       this.loading = false;
     }
   }
 
-  // 完善用户资料
+  // Complete user profile
   async updateProfile(userId: number, profileData: Partial<{
     userCountry: string;
     userRegions: string;
@@ -191,7 +191,7 @@ class AuthStore {
     }
   }
 
-  // 登出
+  // Logout
   async logout() {
     try {
       // 清除本地存储

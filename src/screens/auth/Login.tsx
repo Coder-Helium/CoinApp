@@ -30,7 +30,7 @@ const LoginScreen = observer(() => {
   const handleLogin = async () => {
     // 简单的表单验证
     if (!email.trim() || !password.trim()) {
-      Alert.alert('错误', '请输入邮箱和密码');
+      Alert.alert('Error', 'Please enter email and password');
       return;
     }
 
@@ -42,11 +42,11 @@ const LoginScreen = observer(() => {
         setEmail('');
         setPassword('');
 
-        console.log('登录成功，认证状态已更新');
+        console.log('Login successful, authentication state updated');
       }
     } catch (error) {
-      console.error('登录错误:', error);
-      Alert.alert('登录失败', '发生错误，请稍后重试');
+      console.error('Login error:', error);
+      Alert.alert('Login Failed', 'An error occurred, please try again later');
     }
   };
 
@@ -64,7 +64,7 @@ const LoginScreen = observer(() => {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="邮箱"
+                placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -75,7 +75,7 @@ const LoginScreen = observer(() => {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="密码"
+                placeholder="Password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -84,8 +84,8 @@ const LoginScreen = observer(() => {
 
             <TouchableOpacity
               style={styles.forgotPasswordContainer}
-              onPress={() => console.log('忘记密码')}>
-              <Text style={styles.forgotPasswordText}>忘记密码?</Text>
+              onPress={() => console.log('Forgot password')}>
+              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -95,24 +95,24 @@ const LoginScreen = observer(() => {
               {authStore.loading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text style={styles.loginButtonText}>登录</Text>
+                <Text style={styles.loginButtonText}>Login</Text>
               )}
             </TouchableOpacity>
 
             <View style={styles.signupContainer}>
-              <Text style={styles.signupText}>没有账号? </Text>
+              <Text style={styles.signupText}>No account? </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                <Text style={styles.signupLink}>注册</Text>
+                <Text style={styles.signupLink}>Sign Up</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.securityContainer}>
-              <Text style={styles.securityText}>安全由</Text>
+              <Text style={styles.securityText}>Security by</Text>
               <Image
                 source={require('../../../src/assets/icons/security.png')}
                 style={styles.securityIcon}
               />
-              <Text style={styles.securityText}>提供</Text>
+              <Text style={styles.securityText}>Provider</Text>
             </View>
           </View>
         </ScrollView>

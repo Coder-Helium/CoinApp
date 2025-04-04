@@ -24,32 +24,33 @@ const ProfileScreen = observer(() => {
   }, [profileStore]);
 
   const handleEditProfile = () => {
-    // 导航到资料编辑页面
-    // 在实际应用中这可能是另一个页面
     Alert.alert(
-      '编辑个人资料',
-      '此功能尚未实现。您可以通过ProfileSetup页面更新资料。'
+      'Edit Profile',
+      'This feature is not yet implemented. You can update your profile through the ProfileSetup page.'
     );
   };
 
   const handleLogout = async () => {
     Alert.alert(
-      '登出确认',
-      '您确定要登出吗?',
+      'Logout Confirmation',
+      'Are you sure you want to logout?',
       [
         {
-          text: '取消',
+          text: 'Cancel',
           style: 'cancel',
         },
         {
-          text: '确定',
+          text: 'Confirm',
           onPress: async () => {
             const success = await authStore.logout();
             if (success) {
               console.log('用户已登出');
+              console.log('User logged out');
               // App会自动切换到登录页面
+              // App will automatically switch to login page
             } else {
               Alert.alert('错误', '登出失败，请稍后再试');
+              Alert.alert('Error', 'Logout failed, please try again later');
             }
           },
         },
@@ -77,59 +78,59 @@ const ProfileScreen = observer(() => {
           </View>
           <Text style={styles.name}>{profileStore.profile?.name}</Text>
           <Text style={styles.location}>
-            <Ionicons name="location" size={16} color="#666" /> {profileStore.profile?.userCountry || '未设置'}, {profileStore.profile?.userCity || '未设置'}
+            <Ionicons name="location" size={16} color="#666" /> {profileStore.profile?.userCountry || 'Not set'}, {profileStore.profile?.userCity || 'Not set'}
           </Text>
           <TouchableOpacity
             style={styles.editButton}
             onPress={handleEditProfile}>
             <Ionicons name="create-outline" size={16} color="#fff" style={styles.buttonIcon} />
-            <Text style={styles.editButtonText}>编辑个人资料</Text>
+            <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>
-            <Ionicons name="school-outline" size={20} color="#006400" style={styles.sectionIcon} /> 教育
+            <Ionicons name="school-outline" size={20} color="#006400" style={styles.sectionIcon} /> Education
           </Text>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>大学/学校</Text>
-            <Text style={styles.infoValue}>{profileStore.profile?.userUni || '未设置'}</Text>
+            <Text style={styles.infoLabel}>University/School</Text>
+            <Text style={styles.infoValue}>{profileStore.profile?.userUni || 'Not set'}</Text>
           </View>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>学习领域</Text>
-            <Text style={styles.infoValue}>{profileStore.profile?.userField || '未设置'}</Text>
+            <Text style={styles.infoLabel}>Field of Study</Text>
+            <Text style={styles.infoValue}>{profileStore.profile?.userField || 'Not set'}</Text>
           </View>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>学习阶段</Text>
-            <Text style={styles.infoValue}>{profileStore.profile?.levelOfStudy || '未设置'}</Text>
+            <Text style={styles.infoLabel}>Level of Study</Text>
+            <Text style={styles.infoValue}>{profileStore.profile?.levelOfStudy || 'Not set'}</Text>
           </View>
         </View>
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>
-            <Ionicons name="navigate-outline" size={20} color="#006400" style={styles.sectionIcon} /> 目的地
+            <Ionicons name="navigate-outline" size={20} color="#006400" style={styles.sectionIcon} /> Destination
           </Text>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>目标城市</Text>
-            <Text style={styles.infoValue}>{profileStore.profile?.userCity || '未设置'}</Text>
+            <Text style={styles.infoLabel}>Target City</Text>
+            <Text style={styles.infoValue}>{profileStore.profile?.userCity || 'Not set'}</Text>
           </View>
         </View>
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>
-            <Ionicons name="language-outline" size={20} color="#006400" style={styles.sectionIcon} /> 语言
+            <Ionicons name="language-outline" size={20} color="#006400" style={styles.sectionIcon} /> Language
           </Text>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>首选语言</Text>
+            <Text style={styles.infoLabel}>Preferred Language</Text>
             <Text style={styles.infoValue}>
-              {profileStore.profile?.userLanguage || '未设置'}
+              {profileStore.profile?.userLanguage || 'Not set'}
             </Text>
           </View>
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color="#ff3b30" style={styles.buttonIcon} />
-          <Text style={styles.logoutButtonText}>登出</Text>
+          <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -12,6 +12,7 @@ export type Event = {
 };
 
 // 完整的API响应类型
+// Complete API response type
 export type ApiResponse<T> = {
   code: number;
   message: string;
@@ -19,6 +20,7 @@ export type ApiResponse<T> = {
 };
 
 // 模拟活动数据
+// Mock event data
 export const mockEvents: Event[] = [
   {
     id: 1,
@@ -71,6 +73,7 @@ export const mockEvents: Event[] = [
 ];
 
 // 分页数据类型
+// Pagination data type
 export type PageData<T> = {
   records: T[];
   total: number;
@@ -80,10 +83,13 @@ export type PageData<T> = {
 };
 
 // 模拟API服务
+// Mock API service
 export const mockEventApi = {
   // 获取所有活动
+  // Get all events
   getEvents: async (): Promise<ApiResponse<Event[]>> => {
     // 模拟API请求延迟
+    // Simulate API request delay
     await new Promise(resolve => setTimeout(resolve, 500));
     return {
       code: 200,
@@ -93,6 +99,7 @@ export const mockEventApi = {
   },
 
   // 分页获取活动列表
+  // Get event list with pagination
   getEventsPage: async (page: number = 1, size: number = 10): Promise<ApiResponse<PageData<Event>>> => {
     await new Promise(resolve => setTimeout(resolve, 500));
     const total = mockEvents.length;
@@ -115,6 +122,7 @@ export const mockEventApi = {
   },
 
   // 获取单个活动详情
+  // Get single event details
   getEventById: async (id: number): Promise<ApiResponse<Event | null>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const event = mockEvents.find(event => event.id === id);
@@ -135,6 +143,7 @@ export const mockEventApi = {
   },
 
   // 注册活动
+  // Register for event
   registerEvent: async (id: number): Promise<ApiResponse<boolean>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const event = mockEvents.find(e => e.id === id);
@@ -157,6 +166,7 @@ export const mockEventApi = {
   },
 
   // 取消注册活动
+  // Unregister from event
   unregisterEvent: async (id: number): Promise<ApiResponse<boolean>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const event = mockEvents.find(e => e.id === id);

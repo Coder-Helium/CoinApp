@@ -42,6 +42,7 @@ const ProfileSetupScreen = observer(() => {
   const [loadingData, setLoadingData] = useState(true);
 
   // 加载国家列表
+  // Load country list
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -49,6 +50,7 @@ const ProfileSetupScreen = observer(() => {
         setCountries(data || []);
       } catch (error) {
         console.error('获取国家列表失败:', error);
+        console.error('Failed to get country list:', error);
       } finally {
         setLoadingData(false);
       }
@@ -58,16 +60,19 @@ const ProfileSetupScreen = observer(() => {
   }, []);
 
   // 当选择国家后获取地区列表
+  // Get region list after selecting a country
   useEffect(() => {
     if (country) {
       const fetchRegions = async () => {
         setLoadingData(true);
         try {
           // 假设country存储的是国家代码
+          // Assume country stores the country code
           const data = await userApi.getRegions(country);
           setRegions(data || []);
         } catch (error) {
           console.error('获取地区列表失败:', error);
+          console.error('Failed to get region list:', error);
         } finally {
           setLoadingData(false);
         }
@@ -79,14 +84,16 @@ const ProfileSetupScreen = observer(() => {
 
   const handleComplete = async () => {
     // 验证必填字段
+    // Validate required fields
     if (!country || !region || !city || !fieldOfStudy || !levelOfStudy || !university || !language) {
-      Alert.alert('错误', '请填写所有字段');
+      Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     setLoading(true);
     try {
       // 构建个人资料数据
+      // Build profile data
       const profileData = {
         userCountry: country,
         userRegions: region,
@@ -98,10 +105,11 @@ const ProfileSetupScreen = observer(() => {
       };
 
       // 检查是否有当前用户ID
+      // Check if there is a current user ID
       if (!authStore.user?.id) {
         // 这里应该不会发生，因为通常个人资料设置是在注册后、登录前
-        // 我们可以先登录获取ID
-        Alert.alert('错误', '请先登录后再完善个人资料');
+        // This should not happen, as profile setup is usually done after registration but before login
+        Alert.alert('Error', 'Please login first before completing your profile');
         navigation.navigate('Login');
         return;
       }
@@ -109,13 +117,16 @@ const ProfileSetupScreen = observer(() => {
       const success = await authStore.updateProfile(authStore.user.id, profileData);
 
       if (success) {
-        Alert.alert('成功', '个人资料已更新');
+        Alert.alert('Success', 'Your profile has been updated');
         // 完成后可以导航到主页面
+        // After completion, can navigate to main page
         // 此时App.tsx会检测到认证状态变化并显示主标签导航
+        // At this point, App.tsx will detect authentication state change and display main tab navigation
       }
     } catch (error) {
       console.error('完善个人资料错误:', error);
-      Alert.alert('错误', '更新个人资料时发生错误');
+      console.error('Error completing profile:', error);
+      Alert.alert('Error', 'An error occurred while updating your profile');
     } finally {
       setLoading(false);
     }
@@ -125,7 +136,7 @@ const ProfileSetupScreen = observer(() => {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#006400" />
-        <Text style={styles.loadingText}>加载数据中...</Text>
+        <Text style={styles.loadingText}>Loading data...</Text>
       </SafeAreaView>
     );
   }
@@ -140,18 +151,18 @@ const ProfileSetupScreen = observer(() => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Text style={styles.backButton}>{'<'}</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>完善您的个人资料</Text>
+            <Text style={styles.headerTitle}>Complete Your Profile</Text>
           </View>
 
-          <Text style={styles.subtitle}>请填写以下信息完善您的个人资料</Text>
+          <Text style={styles.subtitle}>Please fill in the following information to complete your profile</Text>
 
           <View style={styles.formContainer}>
             <View style={styles.fieldContainer}>
-              <Text style={styles.fieldLabel}>当前国家</Text>
+              <Text style={styles.fieldLabel}>Current Country</Text>
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="选择您的当前国家"
+                  placeholder="Select your current country"
                   value={country}
                   onChangeText={setCountry}
                 />
@@ -160,11 +171,11 @@ const ProfileSetupScreen = observer(() => {
             </View>
 
             <View style={styles.fieldContainer}>
-              <Text style={styles.fieldLabel}>当前地区</Text>
+              <Text style={styles.fieldLabel}>Current Region</Text>
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="选择您的当前地区"
+                  placeholder="Select your current region"
                   value={region}
                   onChangeText={setRegion}
                 />
@@ -173,11 +184,11 @@ const ProfileSetupScreen = observer(() => {
             </View>
 
             <View style={styles.fieldContainer}>
-              <Text style={styles.fieldLabel}>目标城市</Text>
+              <Text style={styles.fieldLabel}>Target City</Text>
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="选择您的目标城市"
+                  placeholder="Select your target city"
                   value={city}
                   onChangeText={setCity}
                 />
@@ -186,11 +197,11 @@ const ProfileSetupScreen = observer(() => {
             </View>
 
             <View style={styles.fieldContainer}>
-              <Text style={styles.fieldLabel}>学习领域</Text>
+              <Text style={styles.fieldLabel}>Field of Study</Text>
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="选择您的学习领域"
+                  placeholder="Select your field of study"
                   value={fieldOfStudy}
                   onChangeText={setFieldOfStudy}
                 />
@@ -199,11 +210,11 @@ const ProfileSetupScreen = observer(() => {
             </View>
 
             <View style={styles.fieldContainer}>
-              <Text style={styles.fieldLabel}>学习阶段</Text>
+              <Text style={styles.fieldLabel}>Level of Study</Text>
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="选择您的学习阶段"
+                  placeholder="Select your level of study"
                   value={levelOfStudy}
                   onChangeText={setLevelOfStudy}
                 />
@@ -212,11 +223,11 @@ const ProfileSetupScreen = observer(() => {
             </View>
 
             <View style={styles.fieldContainer}>
-              <Text style={styles.fieldLabel}>大学/学校</Text>
+              <Text style={styles.fieldLabel}>University/School</Text>
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="选择您的大学或学校"
+                  placeholder="Select your university or school"
                   value={university}
                   onChangeText={setUniversity}
                 />
@@ -225,11 +236,11 @@ const ProfileSetupScreen = observer(() => {
             </View>
 
             <View style={styles.fieldContainer}>
-              <Text style={styles.fieldLabel}>首选语言</Text>
+              <Text style={styles.fieldLabel}>Preferred Language</Text>
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="选择您的首选语言"
+                  placeholder="Select your preferred language"
                   value={language}
                   onChangeText={setLanguage}
                 />
@@ -244,7 +255,7 @@ const ProfileSetupScreen = observer(() => {
               {loading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text style={styles.completeButtonText}>完成个人资料</Text>
+                <Text style={styles.completeButtonText}>Complete Profile</Text>
               )}
             </TouchableOpacity>
           </View>

@@ -42,6 +42,7 @@ class EventStore {
       this.currentEvent = data;
     } catch (error) {
       console.error(`获取事件${id}详情失败:`, error);
+      console.error(`Failed to fetch event ${id} details:`, error);
     } finally {
       this.loading = false;
     }
@@ -64,6 +65,7 @@ class EventStore {
       return success;
     } catch (error) {
       console.error(`注册事件${id}失败:`, error);
+      console.error(`Failed to register event ${id}:`, error);
       return false;
     }
   }
@@ -85,6 +87,7 @@ class EventStore {
       return success;
     } catch (error) {
       console.error(`取消注册事件${id}失败:`, error);
+      console.error(`Failed to unregister event ${id}:`, error);
       return false;
     }
   }

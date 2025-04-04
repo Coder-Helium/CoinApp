@@ -54,7 +54,7 @@ const UserListScreen = observer(() => {
         ]}
         onPress={() => handleFollowToggle(item.id, item.isFollowing)}>
         <Text style={styles.followButtonText}>
-          {item.isFollowing ? '已关注' : '关注'}
+          {item.isFollowing ? 'Following' : 'Follow'}
         </Text>
       </TouchableOpacity>
     </View>

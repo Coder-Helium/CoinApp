@@ -3,16 +3,20 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 // 使用Text代替Icon，因为没有安装react-native-vector-icons
-// import Icon from 'react-native-vector-icons/Ionicons';
+// Use Text instead of Icon because react-native-vector-icons is not installed
 // 导入Vector Icons
+// Import Vector Icons
 import Ionicons from 'react-native-vector-icons/Ionicons';
 // 移除不存在的hook
+// Remove non-existent hook
 // import {useAuthStore} from './src/hooks/useAuthStore';
 
 // 添加类型声明
+// Add type declaration
 declare module 'react-native-vector-icons/Ionicons';
 
 // 为全局对象添加类型声明
+// Add type declaration for global objects
 declare global {
   var setIsAuthenticated: ((value: boolean) => void) | undefined;
   var isAuthenticated: boolean | undefined;
@@ -246,7 +250,9 @@ const App = () => {
 
   useEffect(() => {
     // 模拟检查登录状态
+    // Simulate checking login status
     // 实际应用中应该从AsyncStorage或其他存储中获取
+    // In a real application, it should be retrieved from AsyncStorage or other storage
     setTimeout(() => {
       setIsAuthenticated(false);
     }, 1000);

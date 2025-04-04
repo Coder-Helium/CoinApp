@@ -38,10 +38,12 @@ const ChatScreen = observer(() => {
     conversationStore.fetchMessages(userId);
 
     // 标记消息为已读 - 注释掉不存在的方法
-    // conversationStore.markAsRead(userId);
+    // Mark messages as read - commented out non-existent method
+    // conversationStore.markAsRead(route.params.userId);
 
     return () => {
       // 如果需要清理
+      // If cleanup is needed
     };
   }, [navigation, username, userId, conversationStore]);
 
