@@ -1,4 +1,5 @@
-import React from 'react';
+// ConnectionsScreen.tsx
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,242 +8,181 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  ActivityIndicator,
+  Modal,
+  Pressable,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import useConnections, { FilterState, Connection } from '../../hooks/useConnections';
 
-// 模拟推荐连接数据
-// Mock recommended connection data
-const recommendedConnections = [
-  {
-    id: 1,
-    name: 'Sarah Kim',
-    university: 'University of Sydney',
-    department: 'Computer Science',
-    avatar: 'https://picsum.photos/id/1027/200',
-    mutualConnections: 5,
-  },
-  {
-    id: 2,
-    name: 'Michael Chen',
-    university: 'UNSW Sydney',
-    department: 'Business',
-    avatar: 'https://picsum.photos/id/1025/200',
-    mutualConnections: 3,
-  },
-  {
-    id: 3,
-    name: 'Emma Wang',
-    university: 'University of Melbourne',
-    department: 'Arts',
-    avatar: 'https://picsum.photos/id/1062/200',
-    mutualConnections: 2,
-  },
-];
+const currentUserId = 5529093;
 
-// 模拟活动数据
-// Mock connection request data
-const connectionRequests = [
-  {
-    id: 1,
-    name: 'David Liu',
-    university: 'University of Queensland',
-    department: 'Engineering',
-    avatar: 'https://picsum.photos/id/1074/200',
-    requestTime: '2 days ago',
-  },
-  {
-    id: 2,
-    name: 'James Wilson',
-    university: 'Monash University',
-    department: 'Medicine',
-    avatar: 'https://picsum.photos/id/1012/200',
-    requestTime: '1 week ago',
-  },
-];
+const ConnectionsScreen: React.FC = () => {
+  const [filterState, setFilterState] = useState<FilterState>({
+    degree: null,
+    university: null,
+    city: null,
+  });
 
-const ConnectionsScreen = () => {
+  const {
+    connections,
+    isLoading,
+    addedFriends,
+    loadMoreConnections,
+    sendFriendRequest,
+    fetchUserProfile,
+    selectedUser,
+    setSelectedUser,
+    isProfileLoading,
+  } = useConnections(filterState, currentUserId);
+
+  const toggleFilter = (type: keyof FilterState, value: string) => {
+    setFilterState(prev => ({
+      ...prev,
+      [type]: prev[type] === value ? null : value,
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilterState({ degree: null, university: null, city: null });
+  };
+
+  const isFilterActive = (type: keyof FilterState, value: string): boolean =>
+    filterState[type] === value;
+
   return (
     <SafeAreaView style={styles.container}>
-              <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Find Connections</Text>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Filter Connections</Text>
           <View style={styles.findConnectionsOptions}>
-            <TouchableOpacity style={styles.findOption}>
+            <TouchableOpacity
+              style={[styles.findOption, isFilterActive('degree', 'Computer Science') && styles.activeFilter]}
+              onPress={() => toggleFilter('degree', 'Computer Science')}
+            >
               <View style={styles.findOptionIcon}>
-                <Ionicons name="school-outline" size={24} color="#006400" />
+                <Ionicons name="school-outline" size={20} color="#006400" />
               </View>
-              <Text style={styles.findOptionText}>By University</Text>
+              <Text style={styles.findOptionText}>Degree</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.findOption}>
+
+            <TouchableOpacity
+              style={[styles.findOption, isFilterActive('university', 'University of New South Wales') && styles.activeFilter]}
+              onPress={() => toggleFilter('university', 'University of New South Wales')}
+            >
               <View style={styles.findOptionIcon}>
-                <Ionicons name="location-outline" size={24} color="#006400" />
+                <Ionicons name="business-outline" size={20} color="#006400" />
               </View>
-              <Text style={styles.findOptionText}>By Location</Text>
+              <Text style={styles.findOptionText}>University</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.findOption}>
+
+            <TouchableOpacity
+              style={[styles.findOption, isFilterActive('city', 'Sydney') && styles.activeFilter]}
+              onPress={() => toggleFilter('city', 'Sydney')}
+            >
               <View style={styles.findOptionIcon}>
-                <Ionicons name="book-outline" size={24} color="#006400" />
+                <Ionicons name="location-outline" size={20} color="#006400" />
               </View>
-              <Text style={styles.findOptionText}>By Interest</Text>
+              <Text style={styles.findOptionText}>City</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.findOption} onPress={clearFilters}>
+              <View style={styles.findOptionIcon}>
+                <Ionicons name="close-outline" size={20} color="#333" />
+              </View>
+              <Text style={styles.findOptionText}>Clear</Text>
             </TouchableOpacity>
           </View>
         </View>
-      {/* <View style={styles.header}>
-        <Text style={styles.headerTitle}>Connections</Text>
-        <TouchableOpacity style={styles.searchButton}>
-          <Ionicons name="search" size={24} color="#333" />
-        </TouchableOpacity>
-      </View> */}
-
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Connection Requests</Text>
-          {connectionRequests.map(request => (
-            <View key={request.id} style={styles.requestCard}>
-              <Image source={{uri: request.avatar}} style={styles.avatar} />
-              <View style={styles.requestInfo}>
-                <Text style={styles.name}>{request.name}</Text>
-                <Text style={styles.university}>{request.university}</Text>
-                <Text style={styles.department}>{request.department}</Text>
-                <Text style={styles.requestTime}>{request.requestTime}</Text>
-              </View>
-              <View style={styles.requestActions}>
-                <TouchableOpacity style={styles.acceptButton}>
-                  <Text style={styles.acceptButtonText}>Accept</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.declineButton}>
-                  <Text style={styles.declineButtonText}>Decline</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-        </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recommended Connections</Text>
-          {recommendedConnections.map(connection => (
+          <Text style={styles.sectionTitle}>Connections For You</Text>
+          {isLoading && <ActivityIndicator size="small" color="#006400" />}
+
+          {connections.map(connection => (
             <View key={connection.id} style={styles.connectionCard}>
-              <Image source={{uri: connection.avatar}} style={styles.avatar} />
+              <TouchableOpacity onPress={() => fetchUserProfile(connection.id)}>
+                <Image
+                  source={{ uri: `https://picsum.photos/id/${connection.id % 100 + 100}/200` }}
+                  style={styles.avatar}
+                />
+              </TouchableOpacity>
               <View style={styles.connectionInfo}>
-                <Text style={styles.name}>{connection.name}</Text>
-                <Text style={styles.university}>{connection.university}</Text>
-                <Text style={styles.department}>{connection.department}</Text>
-                <Text style={styles.mutualConnections}>
-                  <Ionicons name="people-outline" size={14} color="#666" />{' '}
-                  {connection.mutualConnections} mutual connections
-                </Text>
+                <Text style={[styles.text, styles.name]}>{connection.name}</Text>
+                <Text style={styles.text}>{connection.userUni}</Text>
+                <Text style={styles.text}>{connection.userField}</Text>
+                <Text style={styles.text}>{connection.userCity}</Text>
               </View>
-              <TouchableOpacity style={styles.connectButton}>
-                <Text style={styles.connectButtonText}>Connect</Text>
+              <TouchableOpacity
+                style={[styles.connectButton, addedFriends.includes(connection.id) && styles.disabledButton]}
+                onPress={() => sendFriendRequest(connection.id)}
+                disabled={addedFriends.includes(connection.id)}
+              >
+                <Text style={[styles.connectButtonText, addedFriends.includes(connection.id) && { color: '#999' }]}> 
+                  {addedFriends.includes(connection.id) ? 'Added' : 'Add Friend'}
+                </Text>
               </TouchableOpacity>
             </View>
           ))}
+
+          <View style={styles.loadMoreContainer}>
+            <TouchableOpacity
+              style={styles.loadMoreButton}
+              onPress={loadMoreConnections}
+              disabled={isLoading}
+            >
+              <Text style={styles.loadMoreText}>{isLoading ? 'Loading...' : 'Load More'}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <View style={styles.section}>
-          <TouchableOpacity style={styles.viewAllButton}>
-            <Text style={styles.viewAllButtonText}>View All Recommendations</Text>
-          </TouchableOpacity>
-        </View>
-
-
       </ScrollView>
+
+      <Modal
+        animationType="slide"
+        transparent
+        visible={!!selectedUser}
+        onRequestClose={() => setSelectedUser(null)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setSelectedUser(null)}>
+          <View style={styles.modalCard}>
+            {isProfileLoading ? (
+              <ActivityIndicator size="large" color="#006400" />
+            ) : selectedUser && (
+              <>
+                <Image
+                  source={{ uri: `https://picsum.photos/id/${selectedUser.id % 100 + 100}/200` }}
+                  style={styles.modalAvatar}
+                />
+                <Text style={styles.modalName}>{selectedUser.name}</Text>
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>🎓 Education</Text>
+                  <Text style={styles.sectionItem}>University/School: {selectedUser.userUni || 'Not set'}</Text>
+                  <Text style={styles.sectionItem}>Field of Study: {selectedUser.userField || 'Not set'}</Text>
+                  <Text style={styles.sectionItem}>Level of Study: {selectedUser.levelOfStudy || 'Not set'}</Text>
+                </View>
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>📍 Destination</Text>
+                  <Text style={styles.sectionItem}>Target City: {selectedUser.userCity || 'Not set'}</Text>
+                </View>
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>🗣 Language</Text>
+                  <Text style={styles.sectionItem}>Preferred Language: {selectedUser.userLanguage || 'Not set'}</Text>
+                </View>
+              </>
+            )}
+          </View>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  searchButton: {
-    padding: 5,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  section: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  requestCard: {
-    flexDirection: 'row',
-    marginBottom: 15,
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 10,
-  },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-  },
-  requestInfo: {
-    flex: 1,
-    marginLeft: 10,
-    justifyContent: 'center',
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  university: {
-    fontSize: 14,
-    color: '#666',
-  },
-  department: {
-    fontSize: 14,
-    color: '#666',
-  },
-  requestTime: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 5,
-  },
-  requestActions: {
-    justifyContent: 'center',
-  },
-  acceptButton: {
-    backgroundColor: '#006400',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-    marginBottom: 5,
-  },
-  acceptButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  declineButton: {
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-  },
-  declineButtonText: {
-    color: '#666',
-    fontWeight: '600',
-    fontSize: 14,
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  scrollView: { flex: 1 },
+  section: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  sectionTitle: { fontSize: 16, fontWeight: '600', color: '#006400', marginBottom: 8 },
+  sectionItem: { fontSize: 14, color: '#333', marginBottom: 4 },
   connectionCard: {
     flexDirection: 'row',
     marginBottom: 15,
@@ -250,16 +190,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     borderRadius: 10,
   },
-  connectionInfo: {
-    flex: 1,
-    marginLeft: 10,
-    justifyContent: 'center',
-  },
-  mutualConnections: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 5,
-  },
+  avatar: { width: 60, height: 60, borderRadius: 30 },
+  connectionInfo: { flex: 1, marginLeft: 10, justifyContent: 'center' },
+  text: { fontSize: 14, color: '#333', marginBottom: 2 },
+  name: { fontWeight: 'bold' },
   connectButton: {
     backgroundColor: '#006400',
     paddingVertical: 8,
@@ -267,43 +201,59 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignSelf: 'center',
   },
-  connectButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  viewAllButton: {
-    backgroundColor: '#f0f0f0',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  viewAllButtonText: {
-    color: '#333',
-    fontWeight: '600',
-    fontSize: 16,
-  },
+  connectButtonText: { color: '#fff', fontWeight: '600', fontSize: 14 },
+  disabledButton: { backgroundColor: '#ddd' },
   findConnectionsOptions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
   },
-  findOption: {
-    alignItems: 'center',
-    width: '30%',
-  },
+  findOption: { alignItems: 'center', width: '23%', marginBottom: 8 },
   findOptionIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 6,
+  },
+  findOptionText: { fontSize: 12, color: '#333', textAlign: 'center' },
+  activeFilter: { opacity: 0.5 },
+  loadMoreContainer: { alignItems: 'center', marginTop: 10 },
+  loadMoreButton: {
+    backgroundColor: '#e0e0e0',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  loadMoreText: { fontSize: 14, color: '#333', fontWeight: '600' },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    width: '85%',
+    alignItems: 'flex-start',
+    alignSelf: 'center',
+  },
+  modalAvatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignSelf: 'center',
     marginBottom: 10,
   },
-  findOptionText: {
-    fontSize: 14,
-    color: '#333',
-    textAlign: 'center',
+  modalName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    marginBottom: 15,
   },
 });
 
