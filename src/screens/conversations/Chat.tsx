@@ -44,6 +44,7 @@ const ChatScreen = observer(() => {
     return () => {
       // 如果需要清理
       // If cleanup is needed
+      conversationStore.cleanup();
     };
   }, [navigation, username, userId, conversationStore]);
 
