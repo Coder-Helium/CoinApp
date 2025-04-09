@@ -2,6 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { mockEventApi } from './mock/events';
+import { mockUserDetail } from './mock/profile';
 
 // 创建axios实例
 const api = axios.create({
@@ -78,6 +79,28 @@ export const userApi = {
     }
   },
 
+  // 获取用户详细资料
+  getUserDetail: async (userId: number) => {
+    try {
+      // 使用真实 API 的代码 (暂时注释)
+      const response = await api.get(`/user/detail/${userId}`);
+      return response.data;
+
+      // await new Promise(resolve => setTimeout(resolve, 300)); // 模拟网络延迟
+
+      // // 在实际应用中，这里应该使用 userId 从服务器获取特定用户的资料
+      // // 但在 mock 环境中，我们简单地返回预设的用户资料
+      // return {
+      //   code: 200,
+      //   message: 'success',
+      //   data: mockUserDetail,
+      // };
+    } catch (error) {
+      console.error('获取用户详细资料失败:', error);
+      throw error;
+    }
+  },
+
   // 编辑用户信息
   updateUserProfile: async (userId: number, profileData: Partial<{
     userCountry: string;
@@ -89,8 +112,21 @@ export const userApi = {
     userLanguage: string;
   }>) => {
     try {
-      const response = await api.put(`/user/${userId}`, profileData);
-      return response.data;
+      // 使用真实 API 的代码 (暂时注释)
+      // const response = await api.put(`/user/${userId}`, profileData);
+      // return response.data;
+
+      // 使用 mock 数据
+      await new Promise(resolve => setTimeout(resolve, 300)); // 模拟网络延迟
+
+      // 更新 mock 数据
+      Object.assign(mockUserDetail, profileData);
+
+      return {
+        code: 200,
+        message: 'Profile updated successfully',
+        data: mockUserDetail,
+      };
     } catch (error) {
       console.error('更新用户信息失败:', error);
       throw error;
@@ -132,7 +168,7 @@ export const userApi = {
       console.error('获取随机用户失败:', error);
       return { records: [], total: 0, size, current: page, pages: 0 };
     }
-  }
+  },
 };
 
 // 导出事件相关的API
@@ -140,19 +176,21 @@ export const eventApi = {
   // 获取事件列表
   getEvents: async () => {
     try {
-      const response = await api.get('/event/list');
+      //const response = await api.get('/event/list');
+      const response = await mockEventApi.getEvents();
       console.log('response', response);
-      //const response = await mockEventApi.getEvents();
-      console.log('response', response);
-      if (response.data.code === 200) {
-        return response.data.data.map((event: any) => ({
+
+      // if (response.data.code === 200) {
+      //   return response.data.data.map((event: any) => ({
+      if (response.code === 200) {
+        return response.data.map((event: any) => ({
           id: event.id,
           title: event.title,
-          date: event.date,
+          date: event?.date ? new Date(event.date).toLocaleDateString('zh-CN', {year: 'numeric', month: 'numeric', day: 'numeric'}) : '',
           description: event.description,
-          image: event.img || 'https://picsum.photos/400/200',
+          image: event.image || 'https://picsum.photos/400/200',
           location: 'Sydney', // 接口中没有这个字段，模拟一个
-          time: new Date(event.date).toLocaleTimeString(), // 从日期中提取时间
+          time: event.time || '12:00', // 使用事件自带的time或默认值
           attendees: 30, // 接口中没有这个字段，模拟一个
           isRegistered: false, // 接口中没有这个字段，模拟一个
           externalLink: event.externalLink,
@@ -175,7 +213,7 @@ export const eventApi = {
           records: response.data.data.records.map((event: any) => ({
             id: event.id,
             title: event.title,
-            date: event.date,
+            date: event?.date ? new Date(event.date).toLocaleDateString('zh-CN', {year: 'numeric', month: 'numeric', day: 'numeric'}) : '',
             description: event.description,
             image: event.img || 'https://picsum.photos/400/200',
             location: 'Sydney', // 接口中没有这个字段，模拟一个
@@ -183,7 +221,7 @@ export const eventApi = {
             attendees: 30, // 接口中没有这个字段，模拟一个
             isRegistered: false, // 接口中没有这个字段，模拟一个
             externalLink: event.externalLink,
-          }))
+          })),
         };
       }
       return { records: [], total: 0, size, current: page, pages: 0 };
@@ -196,20 +234,21 @@ export const eventApi = {
   // 获取事件详情
   getEventById: async (id: number) => {
     try {
-      const response = await api.get(`/event/detail/${id}`);
-      if (response.data.code === 200) {
-        const event = response.data.data;
+      //const response = await api.get(`/event/detail/${id}`);
+      const response = await mockEventApi.getEventById(id);
+      if (response.code === 200) {
+        const event = response.data;
         return {
-          id: event.id,
-          title: event.title,
-          date: event.date,
-          description: event.description,
-          image: event.img || 'https://picsum.photos/400/200',
+          id: event?.id,
+          title: event?.title,
+          date: event?.date ? new Date(event.date).toLocaleDateString('zh-CN', {year: 'numeric', month: 'numeric', day: 'numeric'}) : '',
+          description: event?.description,
+          image: event?.image || 'https://picsum.photos/400/200',
           location: 'Sydney', // 接口中没有这个字段，模拟一个
-          time: new Date(event.date).toLocaleTimeString(), // 从日期中提取时间
+          time: new Date(event?.date || '').toLocaleTimeString(), // 使用事件自带的time或默认值
           attendees: 30, // 接口中没有这个字段，模拟一个
           isRegistered: false, // 接口中没有这个字段，模拟一个
-          externalLink: event.externalLink,
+          externalLink: event?.externalLink,
         };
       }
       return null;
@@ -231,7 +270,22 @@ export const eventApi = {
     // 模拟成功
     await new Promise(resolve => setTimeout(resolve, 300));
     return true;
-  }
+  },
+
+  // 获取活动参与者列表
+  getEventAttendees: async (eventId: number) => {
+    try {
+      // 使用mock API
+      const response = await mockEventApi.getEventAttendees(eventId);
+      if (response.code === 200) {
+        return response.data;
+      }
+      return [];
+    } catch (error) {
+      console.error(`获取活动${eventId}参与者列表失败:`, error);
+      return [];
+    }
+  },
 };
 
 // 导出好友相关的API
@@ -284,7 +338,21 @@ export const friendApi = {
       console.error('获取好友列表失败:', error);
       return [];
     }
-  }
+  },
+
+  // 获取好友请求状态（检查是否已经发送过请求）
+  getFriendRequestStatus: async (userId: number, friendId: number) => {
+    try {
+      const response = await api.get(`/friends/status?userId=${userId}&friendId=${friendId}`);
+      if (response.data.code === 200) {
+        return response.data.data;
+      }
+      return { status: 'unknown' };
+    } catch (error) {
+      console.error('获取好友状态失败:', error);
+      return { status: 'unknown' };
+    }
+  },
 };
 
 // 导出消息相关的API
@@ -309,7 +377,7 @@ export const messageApi = {
       console.error('获取聊天记录失败:', error);
       return [];
     }
-  }
+  },
 };
 
 // 导出用于帖子的API（保留原有接口）

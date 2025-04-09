@@ -35,7 +35,13 @@ interface ProfileResponse {
   data: Connection | null;
 }
 
-export default function useConnections(filterState: FilterState, currentUserId: number) {
+export const DEFAULT_FILTER_STATE = {
+  degree: null,
+  university: null,
+  city: null,
+};
+
+export default function useConnections(filterState?: FilterState, currentUserId?: number) {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [page, setPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -53,9 +59,9 @@ export default function useConnections(filterState: FilterState, currentUserId: 
       current: pageNum.toString(),
       size: size.toString(),
     });
-    if (filters.degree) params.append('field', filters.degree);
-    if (filters.university) params.append('university', filters.university);
-    if (filters.city) params.append('city', filters.city);
+    if (filters.degree) {params.append('field', filters.degree);}
+    if (filters.university) {params.append('university', filters.university);}
+    if (filters.city) {params.append('city', filters.city);}
     return params.toString();
   };
 
@@ -90,6 +96,7 @@ export default function useConnections(filterState: FilterState, currentUserId: 
 
   const sendFriendRequest = async (friendId: number) => {
     try {
+      console.log('sendFriendRequest', currentUserId, friendId);
       const res = await fetch(`${API_BASE_URL}/friends/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

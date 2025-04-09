@@ -13,16 +13,12 @@ import {
   Pressable,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import useConnections, { FilterState, Connection } from '../../hooks/useConnections';
+import useConnections, { FilterState, Connection, DEFAULT_FILTER_STATE } from '../../hooks/useConnections';
 
 const currentUserId = 5529093;
 
 const ConnectionsScreen: React.FC = () => {
-  const [filterState, setFilterState] = useState<FilterState>({
-    degree: null,
-    university: null,
-    city: null,
-  });
+  const [filterState, setFilterState] = useState<FilterState>(DEFAULT_FILTER_STATE);
 
   const {
     connections,

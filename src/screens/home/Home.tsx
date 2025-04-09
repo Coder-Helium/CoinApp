@@ -1,4 +1,5 @@
-import React, {useEffect, useState} from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -13,6 +14,8 @@ import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import {useEventStore} from '../../hooks/useEventStore';
 import type {EventsStackParamList} from '../../../App';
+import useConnections, { DEFAULT_FILTER_STATE } from '../../hooks/useConnections';
+import { useAuthStore } from '../../hooks/useAuthStore';
 
 type HomeScreenNavigationProp = StackNavigationProp<EventsStackParamList, 'EventsList'>;
 
@@ -52,22 +55,28 @@ const ambassadors = [
   },
 ];
 
+
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const eventStore = useEventStore();
   const [featuredEvent, setFeaturedEvent] = useState<any>(null);
+  const userStore = useAuthStore();
+  const currentUserId = userStore.user?.id;
+
+  const connectionsStore = useConnections(DEFAULT_FILTER_STATE, currentUserId);
 
   useEffect(() => {
     eventStore.fetchEvents();
-  }, [eventStore]);
+  }, []);
 
+  // set featured event
   useEffect(() => {
     if (eventStore.events.length > 0) {
-      setFeaturedEvent(eventStore.events[1]);
+      setFeaturedEvent(eventStore.events[0]);
     }
   }, [eventStore.events]);
 
-  const renderEventItem = ({item}: {item: any}) => (
+  const renderEventItem = useCallback(({item}: {item: any}) => (
     <TouchableOpacity
       style={styles.eventCard}
       onPress={() => navigation.navigate('EventDetail', {eventId: item.id})}>
@@ -81,9 +90,10 @@ const HomeScreen = () => {
         </Text>
       </View>
     </TouchableOpacity>
-  );
+  ), [navigation]);
 
-  const renderAmbassadorItem = ({item}: {item: any}) => (
+
+  const renderAmbassadorItem = useCallback(({item}: {item: any}) => (
     <View style={styles.ambassadorCard}>
       <Image source={{uri: item.avatar}} style={styles.ambassadorAvatar} />
       <Text style={styles.ambassadorName}>{item.name}</Text>
@@ -92,20 +102,25 @@ const HomeScreen = () => {
         {item.university}
       </Text>
       <Text style={styles.ambassadorLocation}>{item.location}</Text>
-      <TouchableOpacity style={styles.addFriendButton}>
+      <TouchableOpacity style={styles.addFriendButton} onPress={() => connectionsStore.sendFriendRequest(item.id)}>
         <Text style={styles.addFriendText}>Add Friend</Text>
       </TouchableOpacity>
     </View>
-  );
+  ), [connectionsStore]);
+
+  // 使用 useMemo 缓存事件列表计算结果
+  const eventsList = useMemo(() => {
+    return eventStore.events.slice(1);
+  }, [eventStore.events]);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.logo}>reKro</Text>
+            <Image source={require('../../assets/rekro.png')} style={styles.logoImage} />
       </View>
 
       <ScrollView style={styles.scrollView}>
-      <Text style={styles.sectionTitle}>Reach Out To our Ambassadors</Text>
+      <Text style={styles.sectionTitle}>Reach Out Connections</Text>
 
         <FlatList
           data={ambassadors}
@@ -132,7 +147,7 @@ const HomeScreen = () => {
         )}
 
         <FlatList
-          data={eventStore.events.slice(1)}
+          data={eventsList}
           renderItem={renderEventItem}
           keyExtractor={item => item.id.toString()}
           horizontal={false}
@@ -156,8 +171,14 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#2E4D40',
-    padding: 15,
-    alignItems: 'center',
+    padding: 5,
+    alignItems: 'flex-start',
+  },
+  logoImage: {
+    height: 40,
+    resizeMode: 'contain',
+    alignSelf: 'flex-start',
+    marginLeft: -35,
   },
   logo: {
     fontSize: 24,

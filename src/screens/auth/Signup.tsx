@@ -77,12 +77,6 @@ const SignupScreen = observer(() => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidView}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              {/* TODO: Add back button icon */}
-              <Text style={styles.backButton}>{'<'}</Text>
-            </TouchableOpacity>
-          </View>
 
           <Text style={styles.subtitle}>Please fill in the following information to create your account</Text>
 
@@ -151,7 +145,7 @@ const SignupScreen = observer(() => {
             <View style={styles.securityContainer}>
               <Text style={styles.securityText}>Security by</Text>
               <Image
-                source={require('../../../src/assets/icons/security.png')}
+                source={require('../../../src/assets/security.png')}
                 style={styles.securityIcon}
               />
               <Text style={styles.securityText}>Provider</Text>

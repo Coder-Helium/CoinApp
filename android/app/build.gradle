@@ -105,6 +105,18 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    
+    // 添加这个代码块以正确链接 react-native-vector-icons 的字体文件
+    sourceSets {
+        main {
+            assets.srcDirs += [
+                '../../node_modules/react-native-vector-icons/Fonts'
+            ]
+            res.srcDirs += [
+                '../../node_modules/react-native-vector-icons/android'
+            ]
+        }
+    }
 }
 
 dependencies {

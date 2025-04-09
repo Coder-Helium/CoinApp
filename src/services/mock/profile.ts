@@ -92,6 +92,26 @@ export const mockFollowing: UserListItem[] = [
   },
 ];
 
+// 模拟用户详情数据
+export const mockUserDetail = {
+  id: 1,
+  name: '张三',
+  email: 'zhangsan@example.com',
+  levelOfStudy: '本科',
+  userType: 'student',
+  userCity: '北京',
+  userCountry: '中国',
+  userField: '计算机科学',
+  userLanguage: '中文,英语',
+  userRegions: '北京',
+  userUni: '北京大学',
+  createdAt: '2023-01-15T08:30:00',
+  avatar: 'https://picsum.photos/id/1/200',
+  bio: '热爱编程和新技术的计算机科学学生',
+  followers: 120,
+  following: 85
+};
+
 // 模拟API服务
 export const profileApi = {
   // 获取用户资料
