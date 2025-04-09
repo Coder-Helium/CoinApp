@@ -241,11 +241,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your current country"
+                  placeholder="Input your current country"
                   value={country}
                   onChangeText={setCountry}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -254,11 +254,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your current region"
+                  placeholder="Input your current region"
                   value={region}
                   onChangeText={setRegion}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -267,11 +267,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your target city"
+                  placeholder="Input your target city"
                   value={city}
                   onChangeText={setCity}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -280,11 +280,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your field of study"
+                  placeholder="Input your field of study"
                   value={fieldOfStudy}
                   onChangeText={setFieldOfStudy}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -293,11 +293,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your level of study"
+                  placeholder="Input your level of study"
                   value={levelOfStudy}
                   onChangeText={setLevelOfStudy}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -306,11 +306,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your university or school"
+                  placeholder="Input your university or school"
                   value={university}
                   onChangeText={setUniversity}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -319,11 +319,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your preferred language"
+                  placeholder="Input your preferred language"
                   value={language}
                   onChangeText={setLanguage}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
