@@ -1,5 +1,5 @@
 import {makeAutoObservable} from 'mobx';
-import {messageApi} from '../services/api';
+import {messageApi, friendApi} from '../services/api';
 import {webSocketService} from '../services/websocket';
 import type {Conversation, Message} from '../services/mock/conversations';
 
@@ -9,6 +9,8 @@ class ConversationStore {
   currentUserId: number | null = null;
   loading = false;
   sendingMessage = false;
+  friendRequests: any[] = [];
+  loadingFriendRequests = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -103,6 +105,34 @@ class ConversationStore {
       console.error(error);
     } finally {
       this.sendingMessage = false;
+    }
+  }
+
+  async fetchFriendRequests(userId: number) {
+    this.loadingFriendRequests = true;
+    try {
+      const requests = await friendApi.getFriendRequests(userId);
+      this.friendRequests = requests;
+    } catch (error) {
+      console.error('Failed to fetch friend requests:', error);
+    } finally {
+      this.loadingFriendRequests = false;
+    }
+  }
+
+  async handleFriendRequest(userId: number, friendId: number, action: 'accept' | 'reject') {
+    try {
+      const success = await friendApi.processFriendRequest(userId, friendId, action);
+      if (success) {
+        // Remove the request from the list
+        this.friendRequests = this.friendRequests.filter(
+          request => request.userId !== friendId
+        );
+      }
+      return success;
+    } catch (error) {
+      console.error('Failed to process friend request:', error);
+      return false;
     }
   }
 
