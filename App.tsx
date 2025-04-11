@@ -269,6 +269,7 @@ const App = () => {
     // Simulate checking login status
     // 实际应用中应该从AsyncStorage或其他存储中获取
     // In a real application, it should be retrieved from AsyncStorage or other storage
+
     setTimeout(() => {
       setIsAuthenticated(false);
     }, 1000);

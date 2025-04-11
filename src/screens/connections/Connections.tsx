@@ -36,15 +36,17 @@ const ConnectionsScreen: React.FC = () => {
   } = useConnections(filterState, currentUserId);
 
 
-  const university = authStore.user?.userUni || '';
-  const field = authStore.user?.userField || '';
-  const city = authStore.user?.userCity || '';
+  const university = authStore.user?.user_uni || '';
+  const field = authStore.user?.user_field || '';
+  const city = authStore.user?.user_city || '';
 
   useEffect(() => {
     fetchConnections(1, filterState);
   }, [filterState]);
 
   const toggleFilter = (type: keyof FilterState, value: string) => {
+    console.log('toggleFilter', type, value);
+    console.log('filterState', filterState);
     setFilterState(prev => ({
       ...prev,
       [type]: prev[type] === value ? null : value,

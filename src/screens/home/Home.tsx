@@ -37,7 +37,7 @@ const HomeScreen = () => {
     if (eventStore.events.length > 0) {
       setFeaturedEvent(eventStore.events[1]);
     }
-  }, []);
+  }, [eventStore.events]);
 
   const renderEventItem = useCallback(({item}: {item: any}) => (
     <TouchableOpacity
@@ -59,12 +59,12 @@ const HomeScreen = () => {
   const renderAmbassadorItem = useCallback(({item}: {item: any}) => (
     <View style={styles.ambassadorCard}>
       <Image source={{uri: item.avatar}} style={styles.ambassadorAvatar} />
-      <Text style={styles.ambassadorName} numberOfLines={1}>{item.name}</Text>
-      <Text style={styles.ambassadorDetail} numberOfLines={1}>{item.userUni}</Text>
-      <Text style={styles.ambassadorDetail} numberOfLines={1}>
+      <Text style={styles.ambassadorName} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
+      <Text style={styles.ambassadorDetail} numberOfLines={1} ellipsizeMode="tail">{item.userUni}</Text>
+      <Text style={styles.ambassadorDetail} numberOfLines={1} ellipsizeMode="tail">
         {item.userField}
       </Text>
-      <Text style={styles.ambassadorLocation} numberOfLines={1}>{item.location}</Text>
+      <Text style={styles.ambassadorLocation} numberOfLines={1} ellipsizeMode="tail">{item.location}</Text>
       <TouchableOpacity style={styles.addFriendButton} onPress={() => connectionsStore.sendFriendRequest(item.id)}>
         <Text style={styles.addFriendText}>Add Friend</Text>
       </TouchableOpacity>
@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: 110,
     overflow: 'hidden',
+    ellipsizeMode: 'tail',
   },
   ambassadorDetail: {
     fontSize: 12,
@@ -261,6 +262,7 @@ const styles = StyleSheet.create({
     width: 110,
     overflow: 'hidden',
     flexWrap: 'nowrap',
+    ellipsizeMode: 'tail',
   },
   ambassadorLocation: {
     fontSize: 12,
@@ -268,6 +270,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: 110,
     overflow: 'hidden',
+    ellipsizeMode: 'tail',
   },
   addFriendButton: {
     backgroundColor: '#2E4D40',

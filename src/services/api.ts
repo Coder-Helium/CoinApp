@@ -289,7 +289,10 @@ export const eventApi = {
   // 获取事件列表
   getEvents: async () => {
     try {
-      const response = await api.get('/event/list');
+      const userJson = await AsyncStorage.getItem('user');
+      const userId = JSON.parse(userJson).id;
+      console.log('user', userId);
+      const response = await api.get(`/event/list?userId=${userId}`);
       // const response = await mockEventApi.getEvents();
       console.log('response', response);
 
@@ -347,7 +350,10 @@ export const eventApi = {
   // 获取事件详情
   getEventById: async (id: number) => {
     try {
-      const response = await api.get(`/event/detail/${id}`);
+      const userJson = await AsyncStorage.getItem('user');
+      const userId = JSON.parse(userJson).id;
+      console.log('user', userId);
+      const response = await api.get(`/event/detail/${id}?userId=${userId}`);
       //const response = await mockEventApi.getEventById(id);
       if (response.data.code === 200) {
         const event = response.data.data.event;

@@ -12,7 +12,7 @@ export interface Event {
   attendees: number;
   isRegistered: boolean;
   externalLink?: string;
-  status?: string;
+  status: string;
 }
 
 class EventStore {

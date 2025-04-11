@@ -62,7 +62,7 @@ class AuthStore {
       if (result.code === 200) {
         this.user = result.data;
         this.isAuthenticated = true;
-
+        // console.log('result.data', result.data);
         // Save user information and token to local storage
         await AsyncStorage.setItem('user', JSON.stringify(result.data));
         await AsyncStorage.setItem('token', result.data.token);

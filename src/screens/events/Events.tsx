@@ -50,7 +50,7 @@ const EventsScreen = observer(() => {
         </View>
         <View style={styles.eventFooter}>
           <Text style={styles.attendees}>
-
+            {item.attendees} attendees
           </Text>
           <TouchableOpacity
             style={[
@@ -59,10 +59,40 @@ const EventsScreen = observer(() => {
             ]}
             onPress={e => {
               e.stopPropagation();
-              if (item.isRegistered) {
-                eventStore.unregisterEvent(item.id, currentUserId);
+              const isCurrentlyRegistered = item.isRegistered;
+
+              if (isCurrentlyRegistered) {
+                item.isRegistered = false;
+                item.attendees = Math.max(0, item.attendees - 1);
+                eventStore.events = [...eventStore.events];
+
+                eventStore.unregisterEvent(item.id, currentUserId).then(success => {
+                  if (!success) {
+                    item.isRegistered = true;
+                    item.attendees += 1;
+                    eventStore.events = [...eventStore.events];
+                  }
+                }).catch(() => {
+                  item.isRegistered = true;
+                  item.attendees += 1;
+                  eventStore.events = [...eventStore.events];
+                });
               } else {
-                eventStore.registerEvent(item.id, currentUserId);
+                item.isRegistered = true;
+                item.attendees += 1;
+                eventStore.events = [...eventStore.events];
+
+                eventStore.registerEvent(item.id, currentUserId).then(success => {
+                  if (!success) {
+                    item.isRegistered = false;
+                    item.attendees -= 1;
+                    eventStore.events = [...eventStore.events];
+                  }
+                }).catch(() => {
+                  item.isRegistered = false;
+                  item.attendees -= 1;
+                  eventStore.events = [...eventStore.events];
+                });
               }
             }}>
             <Ionicons
@@ -72,7 +102,7 @@ const EventsScreen = observer(() => {
               style={styles.buttonIcon}
             />
             <Text style={styles.registerButtonText}>
-              {item.status === 'attend' ? 'Registered' : 'Register'}
+              {item.isRegistered ? 'Registered' : 'Register'}
             </Text>
           </TouchableOpacity>
         </View>
