@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
@@ -29,10 +29,70 @@ const SignupScreen = observer(() => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [countdown, setCountdown] = useState(0);
+  const [sendingCode, setSendingCode] = useState(false);
+  const countdownTimer = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (countdownTimer.current) {
+        clearInterval(countdownTimer.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      countdownTimer.current = setInterval(() => {
+        setCountdown(prevCountdown => {
+          if (prevCountdown <= 1) {
+            clearInterval(countdownTimer.current as NodeJS.Timeout);
+            return 0;
+          }
+          return prevCountdown - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (countdownTimer.current) {
+        clearInterval(countdownTimer.current);
+      }
+    };
+  }, [countdown]);
+
+  const handleSendVerificationCode = async () => {
+    // Validate all fields before sending verification code
+    if (!password.trim() || !confirmPassword.trim() || !name.trim()) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email');
+      return;
+    }
+
+    try {
+      setSendingCode(true);
+      // Call API to send verification code
+      const success = await authStore.sendVerificationCode(email);
+
+      if (success) {
+        setCountdown(60); // Start 60 second countdown
+        Alert.alert('Success', 'Verification code has been sent to your email');
+      }
+    } catch (error) {
+      console.error('Error sending verification code:', error);
+      Alert.alert('Error', 'Failed to send verification code. Please try again later');
+    } finally {
+      setSendingCode(false);
+    }
+  };
 
   const handleSignup = async () => {
     // Form validation
-    if (!email.trim() || !password.trim() || !confirmPassword.trim() || !name.trim()) {
+    if (!email.trim() || !password.trim() || !confirmPassword.trim() || !name.trim() || !verificationCode.trim()) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
@@ -47,8 +107,20 @@ const SignupScreen = observer(() => {
       return;
     }
 
-    // User registration only has basic information, other info will be filled in profile setup page
+    if (verificationCode.length !== 6) {
+      Alert.alert('Error', 'Please enter a 6-digit verification code');
+      return;
+    }
+
     try {
+      // Verify the code
+      const isVerified = await authStore.verifyCode(email, verificationCode);
+      
+      if (!isVerified) {
+        return; // Verification failed, authStore has already shown an error message
+      }
+      
+      // Verification successful, prepare user data
       const userData = {
         name: name,
         email: email,
@@ -62,12 +134,12 @@ const SignupScreen = observer(() => {
         userLanguage: '',
       };
 
-      // Don't call register API, just save registration data
+      // Save registration data without calling the register API
       await AsyncStorage.setItem('temp_signup_data', JSON.stringify(userData));
       navigation.navigate('ProfileSetup');
     } catch (error) {
-      console.error('Error saving registration info:', error);
-      Alert.alert('Error', 'There was a problem saving your information. Please try again later.');
+      console.error('Error during signup process:', error);
+      Alert.alert('Error', 'An error occurred during signup. Please try again later');
     }
   };
 
@@ -77,12 +149,6 @@ const SignupScreen = observer(() => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidView}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              {/* TODO: Add back button icon */}
-              <Text style={styles.backButton}>{'<'}</Text>
-            </TouchableOpacity>
-          </View>
 
           <Text style={styles.subtitle}>Please fill in the following information to create your account</Text>
 
@@ -94,17 +160,6 @@ const SignupScreen = observer(() => {
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
               />
             </View>
 
@@ -128,8 +183,46 @@ const SignupScreen = observer(() => {
               />
             </View>
 
-            <Text style={styles.passwordHint}>Password must contain at least 8 characters</Text>
+            <Text style={styles.passwordHint}>Password must be at least 8 characters</Text>
 
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.verificationContainer}>
+              <View style={styles.verificationInputContainer}>
+                <TextInput
+                  style={styles.verificationInput}
+                  placeholder="Verification Code"
+                  value={verificationCode}
+                  onChangeText={setVerificationCode}
+                  keyboardType="number-pad"
+                  maxLength={6}
+                />
+              </View>
+              <TouchableOpacity
+                style={[
+                  styles.sendCodeButton,
+                  (countdown > 0 || sendingCode) && styles.disabledButton,
+                ]}
+                onPress={handleSendVerificationCode}
+                disabled={countdown > 0 || sendingCode}>
+                {sendingCode ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.sendCodeButtonText}>
+                    {countdown > 0 ? `${countdown} seconds` : 'Send Code'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity
               style={styles.signupButton}
               onPress={handleSignup}
@@ -151,7 +244,7 @@ const SignupScreen = observer(() => {
             <View style={styles.securityContainer}>
               <Text style={styles.securityText}>Security by</Text>
               <Image
-                source={require('../../../src/assets/icons/security.png')}
+                source={require('../../../src/assets/security.png')}
                 style={styles.securityIcon}
               />
               <Text style={styles.securityText}>Provider</Text>
@@ -252,6 +345,37 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     marginHorizontal: 5,
+  },
+  verificationContainer: {
+    flexDirection: 'row',
+    marginBottom: 15,
+  },
+  verificationInputContainer: {
+    flex: 1,
+    marginRight: 10,
+  },
+  verificationInput: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    paddingHorizontal: 15,
+    fontSize: 16,
+  },
+  sendCodeButton: {
+    backgroundColor: '#006400',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+    width: 100,
+  },
+  sendCodeButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#aaa',
   },
 });
 

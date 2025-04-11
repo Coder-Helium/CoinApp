@@ -14,7 +14,8 @@ import {observer} from 'mobx-react-lite';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useProfileStore} from '../../hooks/useProfileStore';
 import {useAuthStore} from '../../hooks/useAuthStore';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {useCallback} from 'react';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {ProfileStackParamList} from '../../../App';
 
@@ -25,9 +26,21 @@ const ProfileScreen = observer(() => {
   const authStore = useAuthStore();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
 
+  // Initial data loading
   useEffect(() => {
     profileStore.fetchProfile();
   }, [profileStore]);
+
+  // Refresh data when the screen comes into focus (returning from Edit Profile)
+  useFocusEffect(
+    useCallback(() => {
+      console.log('Profile screen focused, refreshing data');
+      profileStore.fetchProfile();
+      return () => {
+        // cleanup if needed
+      };
+    }, [profileStore])
+  );
 
 
   const handleLogout = async () => {

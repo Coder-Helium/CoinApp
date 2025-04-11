@@ -19,7 +19,16 @@ export type ApiResponse<T> = {
   data: T;
 };
 
-// 模拟活动数据
+// 定义参与者类型
+export type Attendee = {
+  id: number;
+  name: string;
+  avatar: string;
+  userField: string;
+  userUni: string;
+  isAdded: boolean;
+};
+
 // Mock event data
 export const mockEvents: Event[] = [
   {
@@ -72,7 +81,6 @@ export const mockEvents: Event[] = [
   },
 ];
 
-// 分页数据类型
 // Pagination data type
 export type PageData<T> = {
   records: T[];
@@ -98,7 +106,6 @@ export const mockEventApi = {
     };
   },
 
-  // 分页获取活动列表
   // Get event list with pagination
   getEventsPage: async (page: number = 1, size: number = 10): Promise<ApiResponse<PageData<Event>>> => {
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -117,7 +124,7 @@ export const mockEventApi = {
         size,
         current: page,
         pages,
-      }
+      },
     };
   },
 
@@ -126,7 +133,7 @@ export const mockEventApi = {
   getEventById: async (id: number): Promise<ApiResponse<Event | null>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const event = mockEvents.find(event => event.id === id);
-    
+
     if (event) {
       return {
         code: 200,
@@ -134,7 +141,7 @@ export const mockEventApi = {
         data: event,
       };
     }
-    
+
     return {
       code: 404,
       message: 'Event not found',
@@ -142,12 +149,11 @@ export const mockEventApi = {
     };
   },
 
-  // 注册活动
-  // Register for event
+  // register event
   registerEvent: async (id: number): Promise<ApiResponse<boolean>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const event = mockEvents.find(e => e.id === id);
-    
+
     if (event) {
       event.isRegistered = true;
       event.attendees += 1;
@@ -157,7 +163,7 @@ export const mockEventApi = {
         data: true,
       };
     }
-    
+
     return {
       code: 404,
       message: 'Event not found',
@@ -165,12 +171,11 @@ export const mockEventApi = {
     };
   },
 
-  // 取消注册活动
   // Unregister from event
   unregisterEvent: async (id: number): Promise<ApiResponse<boolean>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const event = mockEvents.find(e => e.id === id);
-    
+
     if (event && event.isRegistered) {
       event.isRegistered = false;
       event.attendees -= 1;
@@ -180,7 +185,7 @@ export const mockEventApi = {
         data: true,
       };
     }
-    
+
     if (!event) {
       return {
         code: 404,
@@ -188,11 +193,12 @@ export const mockEventApi = {
         data: false,
       };
     }
-    
+
     return {
       code: 400,
       message: 'You have not registered for this event',
       data: false,
     };
   },
+
 };

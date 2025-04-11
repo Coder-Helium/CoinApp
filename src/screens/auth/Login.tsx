@@ -56,8 +56,8 @@ const LoginScreen = observer(() => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidView}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>reKro</Text>
+          <View style={styles.header}>
+            <Image source={require('../../assets/rekro_login.png')} style={styles.logoImage} />
           </View>
 
           <View style={styles.formContainer}>
@@ -109,7 +109,7 @@ const LoginScreen = observer(() => {
             <View style={styles.securityContainer}>
               <Text style={styles.securityText}>Security by</Text>
               <Image
-                source={require('../../../src/assets/icons/security.png')}
+                source={require('../../../src/assets/security.png')}
                 style={styles.securityIcon}
               />
               <Text style={styles.securityText}>Provider</Text>
@@ -134,9 +134,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  logoContainer: {
+  header: {
+
+    padding: 15,
     alignItems: 'center',
-    marginBottom: 40,
+  },
+  logoImage: {
+    height: 40,
+    resizeMode: 'contain',
   },
   logoText: {
     fontSize: 32,

@@ -1,22 +1,14 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, {useState, useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-// 使用Text代替Icon，因为没有安装react-native-vector-icons
 // Use Text instead of Icon because react-native-vector-icons is not installed
-// 导入Vector Icons
-// Import Vector Icons
 import Ionicons from 'react-native-vector-icons/Ionicons';
-// 移除不存在的hook
 // Remove non-existent hook
 // import {useAuthStore} from './src/hooks/useAuthStore';
 
-// 添加类型声明
-// Add type declaration
-declare module 'react-native-vector-icons/Ionicons';
-
-// 为全局对象添加类型声明
-// Add type declaration for global objects
+// add type declaration for global objects
 declare global {
   var setIsAuthenticated: ((value: boolean) => void) | undefined;
   var isAuthenticated: boolean | undefined;
@@ -54,6 +46,7 @@ export type HomeStackParamList = {
 export type EventsStackParamList = {
   EventsList: undefined;
   EventDetail: {eventId: number};
+  AttendeeDetail: {attendeeId: number};
 };
 
 // Define the param list for the connections stack
@@ -86,13 +79,26 @@ const Tab = createBottomTabNavigator();
 // Auth Stack Navigator
 const AuthStackNavigator = () => {
   return (
-    <AuthStack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}>
-      <AuthStack.Screen name="Login" component={LoginScreen} />
-      <AuthStack.Screen name="Signup" component={SignupScreen} />
-      <AuthStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+    <AuthStack.Navigator>
+      <AuthStack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="Signup"
+        component={SignupScreen}
+        options={{headerShown: true}}
+      />
+      <AuthStack.Screen
+        name="ProfileSetup"
+        component={ProfileSetupScreen}
+        options={{
+          title: 'Complete Your Profile',
+          headerShown: true,
+          headerBackTitle: 'Back',
+        }}
+      />
     </AuthStack.Navigator>
   );
 };
@@ -185,7 +191,11 @@ const ProfileStackNavigator = () => {
       <ProfileStack.Screen
         name="ProfileSetup"
         component={ProfileSetupScreen}
-        options={{title: 'Edit Profile'}}
+        options={{
+          title: 'Edit Profile',
+          headerShown: true,
+          headerBackTitle: 'Back',
+        }}
       />
     </ProfileStack.Navigator>
   );
@@ -259,6 +269,7 @@ const App = () => {
     // Simulate checking login status
     // 实际应用中应该从AsyncStorage或其他存储中获取
     // In a real application, it should be retrieved from AsyncStorage or other storage
+
     setTimeout(() => {
       setIsAuthenticated(false);
     }, 1000);
@@ -272,7 +283,7 @@ const App = () => {
         clearInterval(checkGlobalAuth);
       }
     }, 100);
-    
+
     return () => clearInterval(checkGlobalAuth);
   }, []);
 

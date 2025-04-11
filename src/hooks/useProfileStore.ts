@@ -28,25 +28,47 @@ class ProfileStore {
     try {
       const userJson = await AsyncStorage.getItem('user');
       if (userJson) {
-        this.profile = JSON.parse(userJson);
+        // 临时从本地存储获取用户信息
+        const userData = JSON.parse(userJson);
+        this.profile = userData;
+
+        // 在背景中通过 API 获取最新的用户信息
+        if (userData.id) {
+          this.fetchProfile();
+        }
       }
     } catch (error) {
       console.error('Error initializing user profile:', error);
     }
   }
 
-  // Get current user profile
+  // 从 API 获取用户资料
   async fetchProfile() {
-    // If profile already exists, use it directly
-    if (this.profile) {
-      return;
-    }
-
     this.loading = true;
     try {
-      const userJson = await AsyncStorage.getItem('user');
-      if (userJson) {
-        this.profile = JSON.parse(userJson);
+      let userId = this.profile?.id;
+      if (!userId) {
+        const userJson = await AsyncStorage.getItem('user');
+        if (userJson) {
+          const userData = JSON.parse(userJson);
+          userId = userData.id;
+        }
+      }
+
+      if (!userId) {
+        console.error('No user ID found, cannot fetch profile');
+        return;
+      }
+
+      // 从 API 获取用户资料
+      const response = await userApi.getUserDetail(userId);
+
+      if (response.code === 200) {
+        this.profile = response.data;
+        // 更新本地存储
+        await AsyncStorage.setItem('user', JSON.stringify(this.profile));
+      } else {
+        console.error('Error fetching user profile:', response.message);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -99,14 +121,14 @@ class ProfileStore {
   }
 
   // Get similar users
-  async fetchRandomUsers(page: number = 1, size: number = 10, params: Partial<{
+  async fetchRandomUsers(page: number = 1, size: number = 10, currentUserId: number, params: Partial<{
     university: string;
     city: string;
     field: string;
   }> = {}) {
     this.loading = true;
     try {
-      const data = await userApi.getRandomUsers(page, size, params);
+      const data = await userApi.getRandomUsers(page, size, currentUserId, params);
       return data;
     } catch (error) {
       console.error('Error fetching similar users:', error);

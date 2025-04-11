@@ -15,7 +15,7 @@ import {observer} from 'mobx-react-lite';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useEventStore} from '../../hooks/useEventStore';
 import type {EventsStackParamList} from '../../../App';
-
+import {useAuthStore} from '../../hooks/useAuthStore';
 type EventsScreenNavigationProp = StackNavigationProp<
   EventsStackParamList,
   'EventsList'
@@ -24,6 +24,8 @@ type EventsScreenNavigationProp = StackNavigationProp<
 const EventsScreen = observer(() => {
   const navigation = useNavigation<EventsScreenNavigationProp>();
   const eventStore = useEventStore();
+  const userStore = useAuthStore();
+  const currentUserId = userStore?.user?.id || 0;
 
   useEffect(() => {
     eventStore.fetchEvents();
@@ -48,7 +50,6 @@ const EventsScreen = observer(() => {
         </View>
         <View style={styles.eventFooter}>
           <Text style={styles.attendees}>
-            <Ionicons name="people-outline" size={14} color="#666" style={styles.metaIcon} />
             {item.attendees} attendees
           </Text>
           <TouchableOpacity
@@ -58,10 +59,40 @@ const EventsScreen = observer(() => {
             ]}
             onPress={e => {
               e.stopPropagation();
-              if (item.isRegistered) {
-                eventStore.unregisterEvent(item.id);
+              const isCurrentlyRegistered = item.isRegistered;
+
+              if (isCurrentlyRegistered) {
+                item.isRegistered = false;
+                item.attendees = Math.max(0, item.attendees - 1);
+                eventStore.events = [...eventStore.events];
+
+                eventStore.unregisterEvent(item.id, currentUserId).then(success => {
+                  if (!success) {
+                    item.isRegistered = true;
+                    item.attendees += 1;
+                    eventStore.events = [...eventStore.events];
+                  }
+                }).catch(() => {
+                  item.isRegistered = true;
+                  item.attendees += 1;
+                  eventStore.events = [...eventStore.events];
+                });
               } else {
-                eventStore.registerEvent(item.id);
+                item.isRegistered = true;
+                item.attendees += 1;
+                eventStore.events = [...eventStore.events];
+
+                eventStore.registerEvent(item.id, currentUserId).then(success => {
+                  if (!success) {
+                    item.isRegistered = false;
+                    item.attendees -= 1;
+                    eventStore.events = [...eventStore.events];
+                  }
+                }).catch(() => {
+                  item.isRegistered = false;
+                  item.attendees -= 1;
+                  eventStore.events = [...eventStore.events];
+                });
               }
             }}>
             <Ionicons

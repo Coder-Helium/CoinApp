@@ -1,5 +1,5 @@
 // ConnectionsScreen.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,17 +13,15 @@ import {
   Pressable,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import useConnections, { FilterState, Connection } from '../../hooks/useConnections';
+import useConnections, { FilterState, Connection, DEFAULT_FILTER_STATE } from '../../hooks/useConnections';
+import { useAuthStore } from '../../hooks/useAuthStore';
 
-const currentUserId = 5529093;
+
 
 const ConnectionsScreen: React.FC = () => {
-  const [filterState, setFilterState] = useState<FilterState>({
-    degree: null,
-    university: null,
-    city: null,
-  });
-
+  const [filterState, setFilterState] = useState<FilterState>(DEFAULT_FILTER_STATE);
+  const authStore = useAuthStore();
+  const currentUserId = authStore.user?.id;
   const {
     connections,
     isLoading,
@@ -31,12 +29,24 @@ const ConnectionsScreen: React.FC = () => {
     loadMoreConnections,
     sendFriendRequest,
     fetchUserProfile,
+    fetchConnections,
     selectedUser,
     setSelectedUser,
     isProfileLoading,
   } = useConnections(filterState, currentUserId);
 
+
+  const university = authStore.user?.user_uni || '';
+  const field = authStore.user?.user_field || '';
+  const city = authStore.user?.user_city || '';
+
+  useEffect(() => {
+    fetchConnections(1, filterState);
+  }, [filterState]);
+
   const toggleFilter = (type: keyof FilterState, value: string) => {
+    console.log('toggleFilter', type, value);
+    console.log('filterState', filterState);
     setFilterState(prev => ({
       ...prev,
       [type]: prev[type] === value ? null : value,
@@ -57,8 +67,8 @@ const ConnectionsScreen: React.FC = () => {
           <Text style={styles.sectionTitle}>Filter Connections</Text>
           <View style={styles.findConnectionsOptions}>
             <TouchableOpacity
-              style={[styles.findOption, isFilterActive('degree', 'Computer Science') && styles.activeFilter]}
-              onPress={() => toggleFilter('degree', 'Computer Science')}
+              style={[styles.findOption, isFilterActive('degree', field) && styles.activeFilter]}
+              onPress={() => toggleFilter('degree', field)}
             >
               <View style={styles.findOptionIcon}>
                 <Ionicons name="school-outline" size={20} color="#006400" />
@@ -67,8 +77,8 @@ const ConnectionsScreen: React.FC = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.findOption, isFilterActive('university', 'University of New South Wales') && styles.activeFilter]}
-              onPress={() => toggleFilter('university', 'University of New South Wales')}
+              style={[styles.findOption, isFilterActive('university', university) && styles.activeFilter]}
+              onPress={() => toggleFilter('university', university)}
             >
               <View style={styles.findOptionIcon}>
                 <Ionicons name="business-outline" size={20} color="#006400" />
@@ -77,8 +87,8 @@ const ConnectionsScreen: React.FC = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.findOption, isFilterActive('city', 'Sydney') && styles.activeFilter]}
-              onPress={() => toggleFilter('city', 'Sydney')}
+              style={[styles.findOption, isFilterActive('city', city) && styles.activeFilter]}
+              onPress={() => toggleFilter('city', city)}
             >
               <View style={styles.findOptionIcon}>
                 <Ionicons name="location-outline" size={20} color="#006400" />

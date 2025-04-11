@@ -12,6 +12,7 @@ export interface Event {
   attendees: number;
   isRegistered: boolean;
   externalLink?: string;
+  status: string;
 }
 
 class EventStore {
@@ -48,9 +49,9 @@ class EventStore {
     }
   }
 
-  async registerEvent(id: number) {
+  async registerEvent(id: number, userId: number) {
     try {
-      const success = await eventApi.registerEvent(id);
+      const success = await eventApi.registerEvent(id, userId);
       if (success) {
         const event = this.events.find(e => e.id === id);
         if (event) {
@@ -70,9 +71,9 @@ class EventStore {
     }
   }
 
-  async unregisterEvent(id: number) {
+  async unregisterEvent(id: number, userId: number) {
     try {
-      const success = await eventApi.unregisterEvent(id);
+      const success = await eventApi.unregisterEvent(id, userId);
       if (success) {
         const event = this.events.find(e => e.id === id);
         if (event) {

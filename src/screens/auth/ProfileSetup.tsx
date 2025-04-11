@@ -18,8 +18,9 @@ import type {CompositeNavigationProp} from '@react-navigation/native';
 import type {AuthStackParamList, ProfileStackParamList} from '../../../App';
 import {useAuthStore} from '../../hooks/useAuthStore';
 import {observer} from 'mobx-react-lite';
-import {userApi} from '../../services/api';
+//import {userApi} from '../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useProfileStore } from '../../hooks/useProfileStore';
 
 // Define a composite navigation type that works for both stacks
 type ProfileSetupScreenNavigationProp = CompositeNavigationProp<
@@ -30,6 +31,7 @@ type ProfileSetupScreenNavigationProp = CompositeNavigationProp<
 const ProfileSetupScreen = observer(() => {
   const navigation = useNavigation<ProfileSetupScreenNavigationProp>();
   const authStore = useAuthStore();
+  const profileStore = useProfileStore();
 
   const [country, setCountry] = useState('');
   const [region, setRegion] = useState('');
@@ -38,38 +40,30 @@ const ProfileSetupScreen = observer(() => {
   const [levelOfStudy, setLevelOfStudy] = useState('');
   const [university, setUniversity] = useState('');
   const [language, setLanguage] = useState('');
-
-  const [_countries, setCountries] = useState<Array<{code: string, name: string}>>([]);
-  const [_regions, setRegions] = useState<Array<{code: string, name: string}>>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(true);
+
   const [tempSignupData, setTempSignupData] = useState<any>(null);
 
   // Determine if this is registration or profile editing
   const isRegistration = !authStore.isAuthenticated;
 
   // Pre-populate fields with user data when in edit mode
+  // todo: 修改
   useEffect(() => {
     if (!isRegistration && authStore.user) {
       // Set fields from user data
-      setCountry(authStore.user.userCountry || '');
-      setRegion(authStore.user.userRegions || '');
-      setCity(authStore.user.userCity || '');
-      setFieldOfStudy(authStore.user.userField || '');
-      setLevelOfStudy(authStore.user.levelOfStudy || '');
-      setUniversity(authStore.user.userUni || '');
-      setLanguage(authStore.user.userLanguage || '');
+      setCountry(profileStore?.profile?.userCountry || '');
+      setRegion(profileStore?.profile?.userRegions || '');
+      setCity(profileStore?.profile?.userCity || '');
+      setFieldOfStudy(profileStore?.profile?.userField || '');
+      setLevelOfStudy(profileStore?.profile?.levelOfStudy || '');
+      setUniversity(profileStore?.profile?.userUni || '');
+      setLanguage(profileStore?.profile?.userLanguage || '');
     }
   }, [
     isRegistration,
     authStore.user,
-    authStore.user?.userCountry,
-    authStore.user?.userRegions,
-    authStore.user?.userCity,
-    authStore.user?.userField,
-    authStore.user?.levelOfStudy,
-    authStore.user?.userUni,
-    authStore.user?.userLanguage,
+    profileStore?.profile,
   ]);
 
   // Load signup data from AsyncStorage if in registration flow
@@ -105,40 +99,40 @@ const ProfileSetupScreen = observer(() => {
   }, [isRegistration, navigation]);
 
   // Load country list
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const data = await userApi.getCountries();
-        setCountries(data || []);
-      } catch (error) {
-        console.error('Failed to get country list:', error);
-      } finally {
-        setLoadingData(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchCountries = async () => {
+  //     try {
+  //       const data = await userApi.getCountries();
+  //       setCountries(data || []);
+  //     } catch (error) {
+  //       console.error('Failed to get country list:', error);
+  //     } finally {
+  //       setLoadingData(false);
+  //     }
+  //   };
 
-    fetchCountries();
-  }, []);
+  //   fetchCountries();
+  // }, []);
 
-  // Get region list after selecting a country
-  useEffect(() => {
-    if (country) {
-      const fetchRegions = async () => {
-        setLoadingData(true);
-        try {
-          // Assume country stores the country code
-          const data = await userApi.getRegions(country);
-          setRegions(data || []);
-        } catch (error) {
-          console.error('Failed to get region list:', error);
-        } finally {
-          setLoadingData(false);
-        }
-      };
+  // // Get region list after selecting a country
+  // useEffect(() => {
+  //   if (country) {
+  //     const fetchRegions = async () => {
+  //       setLoadingData(true);
+  //       try {
+  //         // Assume country stores the country code
+  //         const data = await userApi.getRegions(country);
+  //         setRegions(data || []);
+  //       } catch (error) {
+  //         console.error('Failed to get region list:', error);
+  //       } finally {
+  //         setLoadingData(false);
+  //       }
+  //     };
 
-      fetchRegions();
-    }
-  }, [country]);
+  //     fetchRegions();
+  //   }
+  // }, [country]);
 
   const handleComplete = async () => {
     // Validate required fields
@@ -226,14 +220,14 @@ const ProfileSetupScreen = observer(() => {
     }
   };
 
-  if (loadingData) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#006400" />
-        <Text style={styles.loadingText}>Loading data...</Text>
-      </SafeAreaView>
-    );
-  }
+  // if (loadingData) {
+  //   return (
+  //     <SafeAreaView style={styles.loadingContainer}>
+  //       <ActivityIndicator size="large" color="#006400" />
+  //       <Text style={styles.loadingText}>Loading data...</Text>
+  //     </SafeAreaView>
+  //   );
+  // }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -247,11 +241,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your current country"
+                  placeholder="Input your current country"
                   value={country}
                   onChangeText={setCountry}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -260,11 +254,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your current region"
+                  placeholder="Input your current region"
                   value={region}
                   onChangeText={setRegion}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -273,11 +267,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your target city"
+                  placeholder="Input your target city"
                   value={city}
                   onChangeText={setCity}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -286,11 +280,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your field of study"
+                  placeholder="Input your field of study"
                   value={fieldOfStudy}
                   onChangeText={setFieldOfStudy}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -299,11 +293,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your level of study"
+                  placeholder="Input your level of study"
                   value={levelOfStudy}
                   onChangeText={setLevelOfStudy}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -312,11 +306,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your university or school"
+                  placeholder="Input your university or school"
                   value={university}
                   onChangeText={setUniversity}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
@@ -325,11 +319,11 @@ const ProfileSetupScreen = observer(() => {
               <View style={styles.selectContainer}>
                 <TextInput
                   style={styles.selectInput}
-                  placeholder="Select your preferred language"
+                  placeholder="Input your preferred language"
                   value={language}
                   onChangeText={setLanguage}
                 />
-                <Text style={styles.selectArrow}>▼</Text>
+
               </View>
             </View>
 
