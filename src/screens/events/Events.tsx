@@ -15,7 +15,7 @@ import {observer} from 'mobx-react-lite';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useEventStore} from '../../hooks/useEventStore';
 import type {EventsStackParamList} from '../../../App';
-
+import {useAuthStore} from '../../hooks/useAuthStore';
 type EventsScreenNavigationProp = StackNavigationProp<
   EventsStackParamList,
   'EventsList'
@@ -24,6 +24,8 @@ type EventsScreenNavigationProp = StackNavigationProp<
 const EventsScreen = observer(() => {
   const navigation = useNavigation<EventsScreenNavigationProp>();
   const eventStore = useEventStore();
+  const userStore = useAuthStore();
+  const currentUserId = userStore?.user?.id || 0;
 
   useEffect(() => {
     eventStore.fetchEvents();
@@ -48,8 +50,7 @@ const EventsScreen = observer(() => {
         </View>
         <View style={styles.eventFooter}>
           <Text style={styles.attendees}>
-            <Ionicons name="people-outline" size={14} color="#666" style={styles.metaIcon} />
-            {item.attendees} attendees
+
           </Text>
           <TouchableOpacity
             style={[
@@ -59,9 +60,9 @@ const EventsScreen = observer(() => {
             onPress={e => {
               e.stopPropagation();
               if (item.isRegistered) {
-                eventStore.unregisterEvent(item.id);
+                eventStore.unregisterEvent(item.id, currentUserId);
               } else {
-                eventStore.registerEvent(item.id);
+                eventStore.registerEvent(item.id, currentUserId);
               }
             }}>
             <Ionicons
@@ -71,7 +72,7 @@ const EventsScreen = observer(() => {
               style={styles.buttonIcon}
             />
             <Text style={styles.registerButtonText}>
-              {item.isRegistered ? 'Registered' : 'Register'}
+              {item.status === 'attend' ? 'Registered' : 'Register'}
             </Text>
           </TouchableOpacity>
         </View>

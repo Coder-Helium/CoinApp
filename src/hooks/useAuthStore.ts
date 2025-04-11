@@ -1,7 +1,7 @@
 import {makeAutoObservable} from 'mobx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert} from 'react-native';
-import { mockLoginResponse } from '../services/mock/login';
+import { userApi } from '../services/api';
 
 // User type
 export interface User {
@@ -57,20 +57,7 @@ class AuthStore {
     this.loading = true;
 
     try {
-      // const response = await fetch('http://localhost:8080/user/login', {
-      // //const response = await fetch('http://172.20.10.5:8080/user/login', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     email,
-      //     password,
-      //   }),
-      // });
-
-      //const result = await response.json();
-      const result = mockLoginResponse(email, password);
+      const result = await userApi.login(email, password);
 
       if (result.code === 200) {
         this.user = result.data;
@@ -90,6 +77,7 @@ class AuthStore {
         return true;
       } else {
         Alert.alert('Login Failed', result.message);
+        console.log(result);
         return false;
       }
     } catch (error) {
@@ -117,15 +105,7 @@ class AuthStore {
     this.loading = true;
 
     try {
-      const response = await fetch('http://localhost:8080/user/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      const result = await response.json();
+      const result = await userApi.register(userData);
 
       if (result.code === 200) {
         // After successful registration, do not log in automatically
@@ -158,24 +138,7 @@ class AuthStore {
     this.loading = true;
 
     try {
-      // Get token
-      const token = await AsyncStorage.getItem('token');
-
-      if (!token) {
-        console.error('No token found for profile update');
-        return false;
-      }
-
-      const response = await fetch(`http://localhost:8080/user/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(profileData),
-      });
-
-      const result = await response.json();
+      const result = await userApi.updateProfile(userId, profileData);
 
       if (result.code === 200) {
         // Update user info in local state
@@ -186,12 +149,12 @@ class AuthStore {
 
         return true;
       } else {
-        Alert.alert('Update profile failed', result.message);
+        Alert.alert('Update Profile Failed', result.message);
         return false;
       }
     } catch (error) {
-      console.error('update profile error:', error);
-      Alert.alert('update profile failed', 'network request failed, please try again later');
+      console.error('Update profile error:', error);
+      Alert.alert('Update Profile Failed', 'Network request failed, please try again later');
       return false;
     } finally {
       this.loading = false;
@@ -201,14 +164,17 @@ class AuthStore {
   // Logout
   async logout() {
     try {
-      // 清除本地存储
+      // Call logout API (although it's just a client-side operation)
+      await userApi.logout();
+      
+      // Clear local storage regardless of API result
       await AsyncStorage.removeItem('user');
       await AsyncStorage.removeItem('token');
 
       this.user = null;
       this.isAuthenticated = false;
 
-      // 设置全局登出状态
+      // Set global logout state
       // @ts-ignore
       if (typeof global.setIsAuthenticated === 'function') {
         // @ts-ignore
@@ -218,6 +184,50 @@ class AuthStore {
     } catch (error) {
       console.error('Logout error:', error);
       return false;
+    }
+  }
+
+  // 发送邮箱验证码
+  async sendVerificationCode(email: string) {
+    this.loading = true;
+    
+    try {
+      const result = await userApi.sendVerificationCode(email);
+      
+      if (result.code === 200) {
+        return true;
+      } else {
+        Alert.alert('Failed to Send', result.message || 'Failed to send verification code. Please try again later.');
+        return false;
+      }
+    } catch (error) {
+      console.error('Send verification code error:', error);
+      Alert.alert('Failed to Send', 'Network request failed. Please try again later.');
+      return false;
+    } finally {
+      this.loading = false;
+    }
+  }
+  
+  // 验证邮箱验证码
+  async verifyCode(email: string, code: string) {
+    this.loading = true;
+    
+    try {
+      const result = await userApi.verifyCode(email, code);
+      
+      if (result.code === 200) {
+        return true;
+      } else {
+        Alert.alert('Verification Failed', result.message || 'Failed to verify code. Please check and try again.');
+        return false;
+      }
+    } catch (error) {
+      console.error('Verify code error:', error);
+      Alert.alert('Verification Failed', 'Network request failed. Please try again later.');
+      return false;
+    } finally {
+      this.loading = false;
     }
   }
 }

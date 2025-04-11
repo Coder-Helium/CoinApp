@@ -75,18 +75,17 @@ const SignupScreen = observer(() => {
 
     try {
       setSendingCode(true);
-      // Here you would call your API to send the verification code
-      // Example:
-      // await authStore.sendVerificationCode(email);
-      // For now, we'll simulate a successful API call
-      setTimeout(() => {
-        setSendingCode(false);
+      // Call API to send verification code
+      const success = await authStore.sendVerificationCode(email);
+
+      if (success) {
         setCountdown(60); // Start 60 second countdown
         Alert.alert('Success', 'Verification code has been sent to your email');
-      }, 1500);
+      }
     } catch (error) {
       console.error('Error sending verification code:', error);
       Alert.alert('Error', 'Failed to send verification code. Please try again later');
+    } finally {
       setSendingCode(false);
     }
   };
@@ -113,11 +112,15 @@ const SignupScreen = observer(() => {
       return;
     }
 
-    // Here you would validate the verification code with your backend
-    // For demo purposes, we'll assume it's valid
-
-    // User registration only has basic information, other info will be filled in profile setup page
     try {
+      // Verify the code
+      const isVerified = await authStore.verifyCode(email, verificationCode);
+      
+      if (!isVerified) {
+        return; // Verification failed, authStore has already shown an error message
+      }
+      
+      // Verification successful, prepare user data
       const userData = {
         name: name,
         email: email,
@@ -131,12 +134,12 @@ const SignupScreen = observer(() => {
         userLanguage: '',
       };
 
-      // Don't call register API, just save registration data
+      // Save registration data without calling the register API
       await AsyncStorage.setItem('temp_signup_data', JSON.stringify(userData));
       navigation.navigate('ProfileSetup');
     } catch (error) {
-      console.error('Error saving registration info:', error);
-      Alert.alert('Error', 'There was a problem saving your information. Please try again later.');
+      console.error('Error during signup process:', error);
+      Alert.alert('Error', 'An error occurred during signup. Please try again later');
     }
   };
 
@@ -180,7 +183,7 @@ const SignupScreen = observer(() => {
               />
             </View>
 
-            <Text style={styles.passwordHint}>Password must contain at least 8 characters</Text>
+            <Text style={styles.passwordHint}>Password must be at least 8 characters</Text>
 
             <View style={styles.inputContainer}>
               <TextInput
@@ -215,7 +218,7 @@ const SignupScreen = observer(() => {
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
                   <Text style={styles.sendCodeButtonText}>
-                    {countdown > 0 ? `${countdown}s` : 'Send Code'}
+                    {countdown > 0 ? `${countdown} seconds` : 'Send Code'}
                   </Text>
                 )}
               </TouchableOpacity>

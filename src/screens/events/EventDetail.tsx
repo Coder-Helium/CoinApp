@@ -43,7 +43,7 @@ const EventDetailScreen = observer(() => {
 
   // get user id and connections store
   const userStore = useAuthStore();
-  const currentUserId = userStore.user?.id;
+  const currentUserId = userStore?.user?.id || 0;
   const connectionsStore = useConnections(DEFAULT_FILTER_STATE, currentUserId);
 
   useEffect(() => {
@@ -62,7 +62,8 @@ const EventDetailScreen = observer(() => {
   const fetchAttendees = async () => {
     setIsLoading(true);
     try {
-      const data = await eventApi.getEventAttendees(eventId);
+      const myUserId = currentUserId;
+      const data = await eventApi.getEventAttendees(eventId, myUserId);
       setAttendees(data);
     } catch (error) {
       console.error('Failed to fetch attendees:', error);
@@ -90,9 +91,9 @@ const EventDetailScreen = observer(() => {
     if (!eventStore.currentEvent) {return;}
 
     if (eventStore.currentEvent.isRegistered) {
-      await eventStore.unregisterEvent(eventStore.currentEvent.id);
+      await eventStore.unregisterEvent(eventStore.currentEvent.id, currentUserId);
     } else {
-      await eventStore.registerEvent(eventStore.currentEvent.id);
+      await eventStore.registerEvent(eventStore.currentEvent.id, currentUserId);
     }
   };
 
@@ -115,7 +116,7 @@ const EventDetailScreen = observer(() => {
   // render attendees list item
   const renderAttendeeItem = ({item}: {item: Attendee}) => (
     <View style={styles.attendeeItem}>
-      <Image source={{uri: item.avatar}} style={styles.attendeeAvatar} />
+      <Image source={{uri: 'https://picsum.photos/id/1000/200'}} style={styles.attendeeAvatar} />
       <View style={styles.attendeeInfo}>
         <Text style={styles.attendeeName}>{item.name}</Text>
         <Text style={styles.attendeeDetail}>{item.userUni}</Text>

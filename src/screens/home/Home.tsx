@@ -19,43 +19,6 @@ import { useAuthStore } from '../../hooks/useAuthStore';
 
 type HomeScreenNavigationProp = StackNavigationProp<EventsStackParamList, 'EventsList'>;
 
-// 模拟大使数据
-const ambassadors = [
-  {
-    id: 1,
-    name: 'Reuben Roy',
-    university: 'University of New South Wales',
-    department: 'Business',
-    location: 'Kerala',
-    avatar: 'https://picsum.photos/id/1005/200',
-  },
-  {
-    id: 2,
-    name: 'Reuben Roy',
-    university: 'University of New South Wales',
-    department: 'Business',
-    location: 'Kerala',
-    avatar: 'https://picsum.photos/id/1012/200',
-  },
-  {
-    id: 3,
-    name: 'Reuben Roy',
-    university: 'University of New South Wales',
-    department: 'Business',
-    location: 'Kerala',
-    avatar: 'https://picsum.photos/id/1025/200',
-  },
-  {
-    id: 4,
-    name: 'Reuben Roy',
-    university: 'University of New South Wales',
-    department: 'Business',
-    location: 'Kerala',
-    avatar: 'https://picsum.photos/id/1027/200',
-  },
-];
-
-
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const eventStore = useEventStore();
@@ -72,9 +35,9 @@ const HomeScreen = () => {
   // set featured event
   useEffect(() => {
     if (eventStore.events.length > 0) {
-      setFeaturedEvent(eventStore.events[0]);
+      setFeaturedEvent(eventStore.events[1]);
     }
-  }, [eventStore.events]);
+  }, []);
 
   const renderEventItem = useCallback(({item}: {item: any}) => (
     <TouchableOpacity
@@ -96,12 +59,12 @@ const HomeScreen = () => {
   const renderAmbassadorItem = useCallback(({item}: {item: any}) => (
     <View style={styles.ambassadorCard}>
       <Image source={{uri: item.avatar}} style={styles.ambassadorAvatar} />
-      <Text style={styles.ambassadorName}>{item.name}</Text>
-      <Text style={styles.ambassadorDetail}>{item.department}</Text>
+      <Text style={styles.ambassadorName} numberOfLines={1}>{item.name}</Text>
+      <Text style={styles.ambassadorDetail} numberOfLines={1}>{item.userUni}</Text>
       <Text style={styles.ambassadorDetail} numberOfLines={1}>
-        {item.university}
+        {item.userField}
       </Text>
-      <Text style={styles.ambassadorLocation}>{item.location}</Text>
+      <Text style={styles.ambassadorLocation} numberOfLines={1}>{item.location}</Text>
       <TouchableOpacity style={styles.addFriendButton} onPress={() => connectionsStore.sendFriendRequest(item.id)}>
         <Text style={styles.addFriendText}>Add Friend</Text>
       </TouchableOpacity>
@@ -123,7 +86,7 @@ const HomeScreen = () => {
       <Text style={styles.sectionTitle}>Reach Out Connections</Text>
 
         <FlatList
-          data={ambassadors}
+          data={connectionsStore.connections.slice(0, 5)}
           renderItem={renderAmbassadorItem}
           keyExtractor={item => item.id.toString()}
           horizontal={true}
@@ -274,6 +237,7 @@ const styles = StyleSheet.create({
   },
   ambassadorCard: {
     width: 120,
+    height: 220,
     marginHorizontal: 5,
     alignItems: 'center',
   },
@@ -287,16 +251,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
+    width: 110,
+    overflow: 'hidden',
   },
   ambassadorDetail: {
     fontSize: 12,
     color: '#666',
     textAlign: 'center',
+    width: 110,
+    overflow: 'hidden',
+    flexWrap: 'nowrap',
   },
   ambassadorLocation: {
     fontSize: 12,
     color: '#666',
     marginBottom: 10,
+    width: 110,
+    overflow: 'hidden',
   },
   addFriendButton: {
     backgroundColor: '#2E4D40',

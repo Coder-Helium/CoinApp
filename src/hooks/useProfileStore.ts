@@ -121,14 +121,14 @@ class ProfileStore {
   }
 
   // Get similar users
-  async fetchRandomUsers(page: number = 1, size: number = 10, params: Partial<{
+  async fetchRandomUsers(page: number = 1, size: number = 10, currentUserId: number, params: Partial<{
     university: string;
     city: string;
     field: string;
   }> = {}) {
     this.loading = true;
     try {
-      const data = await userApi.getRandomUsers(page, size, params);
+      const data = await userApi.getRandomUsers(page, size, currentUserId, params);
       return data;
     } catch (error) {
       console.error('Error fetching similar users:', error);

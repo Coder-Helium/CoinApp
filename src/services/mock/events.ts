@@ -201,35 +201,4 @@ export const mockEventApi = {
     };
   },
 
-  // get event attendees list
-  getEventAttendees: async (eventId: number): Promise<ApiResponse<Attendee[]>> => {
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    // find event
-    const event = mockEvents.find(e => e.id === eventId);
-
-    if (!event) {
-      return {
-        code: 404,
-        message: 'Event not found',
-        data: [],
-      };
-    }
-
-    // generate random attendees data
-    const attendees: Attendee[] = Array.from({length: event.attendees}, (_, i) => ({
-      id: i + 1,
-      name: `Attendee ${i + 1}`,
-      avatar: `https://picsum.photos/id/${(i + 100) % 1000}/200`,
-      userField: ['计算机科学', '商业管理', '工程学', '艺术设计', '医学', '法律'][Math.floor(Math.random() * 6)],
-      userUni: ['悉尼大学', '新南威尔士大学', '墨尔本大学', '昆士兰大学', '莫纳什大学'][Math.floor(Math.random() * 5)],
-      isAdded: Math.random() > 0.7, // 随机确定是否已添加为好友
-    }));
-
-    return {
-      code: 200,
-      message: 'Event attendees retrieved successfully',
-      data: attendees,
-    };
-  },
 };
