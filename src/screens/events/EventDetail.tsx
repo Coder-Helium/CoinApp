@@ -94,6 +94,17 @@ const EventDetailScreen = observer(() => {
       await eventStore.unregisterEvent(eventStore.currentEvent.id, currentUserId);
     } else {
       await eventStore.registerEvent(eventStore.currentEvent.id, currentUserId);
+
+      // 检查事件是否有外部链接，如果有则跳转
+      if (eventStore.currentEvent.externalLink) {
+        // 直接导入 Linking 而不使用 NativeEventEmitter
+        const { Linking } = require('react-native');
+        try {
+          await Linking.openURL(eventStore.currentEvent.externalLink || '');
+        } catch (err) {
+          console.error('无法打开链接:', err);
+        }
+      }
     }
   };
 

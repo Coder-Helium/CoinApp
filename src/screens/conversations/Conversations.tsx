@@ -75,6 +75,11 @@ const ConversationsScreen = observer(() => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Conversations</Text>
+        <TouchableOpacity
+          style={styles.wsTestButton}
+          onPress={() => navigation.navigate('WebSocketTest')}>
+          <Text style={styles.wsTestButtonText}>WebSocket测试</Text>
+        </TouchableOpacity>
       </View>
       <FlatList
         data={conversationStore.conversations}
@@ -100,6 +105,9 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
@@ -163,6 +171,17 @@ const styles = StyleSheet.create({
   unreadMessage: {
     fontWeight: '600',
     color: '#333',
+  },
+  wsTestButton: {
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  wsTestButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 12,
   },
 });
 

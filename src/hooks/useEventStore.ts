@@ -12,38 +12,50 @@ export interface Event {
   attendees: number;
   isRegistered: boolean;
   externalLink?: string;
-  status: string;
+  status?: string;
 }
 
 class EventStore {
   events: Event[] = [];
   currentEvent: Event | null = null;
   loading = false;
+  error: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
   }
 
   async fetchEvents() {
+    if (this.loading) return; // 防止重复请求
+
     this.loading = true;
+    this.error = null;
     try {
       const data = await eventApi.getEvents();
       this.events = data;
+      console.log('成功获取事件列表，数量:', data.length);
     } catch (error) {
-      console.error('fetch events failed:', error);
+      console.error('获取事件列表失败:', error);
+      this.error = '获取事件列表失败';
+      this.events = []; // 确保在出错时重置数组
     } finally {
       this.loading = false;
     }
   }
 
   async fetchEventById(id: number) {
+    if (this.loading) return; // 防止重复请求
+    
     this.loading = true;
+    this.error = null;
+    
     try {
       const data = await eventApi.getEventById(id);
-      this.currentEvent = data;
+      this.currentEvent = data as Event;
     } catch (error) {
       console.error(`获取事件${id}详情失败:`, error);
-      console.error(`Failed to fetch event ${id} details:`, error);
+      this.error = `获取事件${id}详情失败`;
+      this.currentEvent = null;
     } finally {
       this.loading = false;
     }
@@ -66,7 +78,6 @@ class EventStore {
       return success;
     } catch (error) {
       console.error(`注册事件${id}失败:`, error);
-      console.error(`Failed to register event ${id}:`, error);
       return false;
     }
   }
@@ -88,9 +99,13 @@ class EventStore {
       return success;
     } catch (error) {
       console.error(`取消注册事件${id}失败:`, error);
-      console.error(`Failed to unregister event ${id}:`, error);
       return false;
     }
+  }
+  
+  // 添加清除错误的方法
+  clearError() {
+    this.error = null;
   }
 }
 

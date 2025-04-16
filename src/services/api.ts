@@ -6,7 +6,7 @@ import { mockUserDetail } from './mock/profile';
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: 'http://172.20.10.5:8080',
+  baseURL: 'http://54.252.49.201:8080/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -23,6 +23,24 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('请求拦截器错误:', error);
+    return Promise.reject(error);
+  }
+);
+
+// 响应拦截器，处理常见错误
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    console.error('API响应错误:', error);
+    if (error.code === 'ECONNABORTED') {
+      console.error('请求超时');
+    }
+    if (error.message === 'Network Error') {
+      console.error('网络连接错误，请检查网络状态');
+    }
     return Promise.reject(error);
   }
 );
@@ -290,29 +308,44 @@ export const eventApi = {
   getEvents: async () => {
     try {
       const userJson = await AsyncStorage.getItem('user');
-      const userId = JSON.parse(userJson).id;
-      console.log('user', userId);
-      const response = await api.get(`/event/list?userId=${userId}`);
-      // const response = await mockEventApi.getEvents();
-      console.log('response', response);
-
-      // if (response.data.code === 200) {
-      //   return response.data.data.map((event: any) => ({
-      if (response.data.code === 200) {
-        return response.data.data.map((event: any) => ({
-          id: event.id,
-          title: event.title,
-          date: event?.date ? new Date(event.date).toLocaleDateString('zh-CN', {year: 'numeric', month: 'numeric', day: 'numeric'}) : '',
-          description: event.description,
-          image: event.image || 'https://picsum.photos/400/200',
-          location: 'Sydney', // 接口中没有这个字段，模拟一个
-          time: event.time || '12:00', // 使用事件自带的time或默认值
-          attendees: 30, // 接口中没有这个字段，模拟一个
-          isRegistered: false, // 接口中没有这个字段，模拟一个
-          externalLink: event.externalLink,
-        }));
+      if (!userJson) {
+        console.warn('用户信息不存在，无法获取事件列表');
+        return [];
       }
-      return [];
+
+      try {
+        const userData = JSON.parse(userJson);
+        if (!userData || !userData.id) {
+          console.warn('用户ID不存在，无法获取事件列表');
+          return [];
+        }
+
+        const userId = userData.id;
+        console.log('发起事件列表请求，用户ID:', userId);
+
+        const response = await api.get(`/event/list?userId=${userId}`);
+        console.log('事件列表响应:', response.status);
+
+        if (response.data.code === 200) {
+          return response.data.data.map((event: any, participants: any) => ({
+            id: event.id,
+            title: event.title,
+            date: event?.date ? new Date(event.date).toLocaleDateString('zh-CN', {year: 'numeric', month: 'numeric', day: 'numeric'}) : '',
+            description: event.description,
+            image: event.image || 'https://picsum.photos/400/200',
+            location: 'Sydney', // 接口中没有这个字段，模拟一个
+            time: event.time || '12:00', // 使用事件自带的time或默认值
+            attendees: participants, // 接口中没有这个字段，模拟一个
+            isRegistered: false, // 接口中没有这个字段，模拟一个
+            externalLink: event.externalLink,
+          }));
+        }
+        console.warn('事件列表请求返回非200状态码:', response.data.code);
+        return [];
+      } catch (parseError) {
+        console.error('解析用户信息失败:', parseError);
+        return [];
+      }
     } catch (error) {
       console.error('获取事件列表失败:', error);
       return [];
@@ -351,7 +384,12 @@ export const eventApi = {
   getEventById: async (id: number) => {
     try {
       const userJson = await AsyncStorage.getItem('user');
-      const userId = JSON.parse(userJson).id;
+      if (!userJson) {
+        console.error('用户信息不存在');
+        return null;
+      }
+      const userData = JSON.parse(userJson);
+      const userId = userData.id;
       console.log('user', userId);
       const response = await api.get(`/event/detail/${id}?userId=${userId}`);
       //const response = await mockEventApi.getEventById(id);

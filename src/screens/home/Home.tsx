@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
@@ -16,10 +17,11 @@ import {useEventStore} from '../../hooks/useEventStore';
 import type {EventsStackParamList} from '../../../App';
 import useConnections, { DEFAULT_FILTER_STATE } from '../../hooks/useConnections';
 import { useAuthStore } from '../../hooks/useAuthStore';
+import { observer } from 'mobx-react-lite';
 
 type HomeScreenNavigationProp = StackNavigationProp<EventsStackParamList, 'EventsList'>;
 
-const HomeScreen = () => {
+const HomeScreen = observer(() => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const eventStore = useEventStore();
   const [featuredEvent, setFeaturedEvent] = useState<any>(null);
@@ -29,13 +31,16 @@ const HomeScreen = () => {
   const connectionsStore = useConnections(DEFAULT_FILTER_STATE, currentUserId);
 
   useEffect(() => {
-    eventStore.fetchEvents();
-  }, []);
+    if (currentUserId) {
+      eventStore.fetchEvents();
+    }
+  }, [currentUserId]);
 
   // set featured event
   useEffect(() => {
     if (eventStore.events.length > 0) {
-      setFeaturedEvent(eventStore.events[1]);
+      const event = eventStore.events.length > 1 ? eventStore.events[1] : eventStore.events[0];
+      setFeaturedEvent(event);
     }
   }, [eventStore.events]);
 
@@ -58,23 +63,39 @@ const HomeScreen = () => {
 
   const renderAmbassadorItem = useCallback(({item}: {item: any}) => (
     <View style={styles.ambassadorCard}>
-      <Image source={{uri: item.avatar}} style={styles.ambassadorAvatar} />
+      <Image source={{uri: item.userIcon}} style={styles.ambassadorAvatar} />
       <Text style={styles.ambassadorName} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
       <Text style={styles.ambassadorDetail} numberOfLines={1} ellipsizeMode="tail">{item.userUni}</Text>
       <Text style={styles.ambassadorDetail} numberOfLines={1} ellipsizeMode="tail">
         {item.userField}
       </Text>
       <Text style={styles.ambassadorLocation} numberOfLines={1} ellipsizeMode="tail">{item.location}</Text>
-      <TouchableOpacity style={styles.addFriendButton} onPress={() => connectionsStore.sendFriendRequest(item.id)}>
-        <Text style={styles.addFriendText}>Add Friend</Text>
+      <TouchableOpacity
+        style={[styles.addFriendButton, connectionsStore.addedFriends.includes(item.id) && styles.disabledButton]}
+        onPress={() => connectionsStore.sendFriendRequest(item.id)}
+        disabled={connectionsStore.addedFriends.includes(item.id)}
+      >
+      <Text style={[styles.addFriendText, connectionsStore.addedFriends.includes(item.id) && { color: '#999' }]}>
+          {connectionsStore.addedFriends.includes(item.id) ? 'Added' : 'Add Friend'}
+        </Text>
       </TouchableOpacity>
     </View>
   ), [connectionsStore]);
 
   // 使用 useMemo 缓存事件列表计算结果
   const eventsList = useMemo(() => {
+    if (eventStore.events.length <= 1) return [];
     return eventStore.events.slice(1);
   }, [eventStore.events]);
+
+  // 添加加载状态显示
+  if (eventStore.loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2E4D40" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -95,7 +116,7 @@ const HomeScreen = () => {
         />
         <Text style={styles.sectionTitle}>Events for You</Text>
 
-        {featuredEvent && (
+        {featuredEvent ? (
           <TouchableOpacity
             style={styles.featuredEventCard}
             onPress={() => navigation.navigate('EventDetail', {eventId: featuredEvent.id})}>
@@ -107,15 +128,21 @@ const HomeScreen = () => {
               </Text>
             </View>
           </TouchableOpacity>
+        ) : (
+          <View style={styles.noEventContainer}>
+            <Text style={styles.noEventText}>暂无推荐活动</Text>
+          </View>
         )}
 
-        <FlatList
-          data={eventsList}
-          renderItem={renderEventItem}
-          keyExtractor={item => item.id.toString()}
-          horizontal={false}
-          scrollEnabled={false}
-        />
+        {eventsList.length > 0 ? (
+          <FlatList
+            data={eventsList}
+            renderItem={renderEventItem}
+            keyExtractor={item => item.id.toString()}
+            horizontal={false}
+            scrollEnabled={false}
+          />
+        ) : null}
 
         <TouchableOpacity
           style={styles.exploreButton}
@@ -125,11 +152,17 @@ const HomeScreen = () => {
       </ScrollView>
     </SafeAreaView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#fff',
   },
   header: {
@@ -158,6 +191,20 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     color: '#333',
   },
+  noEventContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    margin: 15,
+    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  noEventText: {
+    fontSize: 16,
+    color: '#666',
+  },
   featuredEventCard: {
     marginHorizontal: 15,
     marginBottom: 15,
@@ -177,6 +224,7 @@ const styles = StyleSheet.create({
   featuredEventContent: {
     padding: 15,
   },
+  disabledButton: { backgroundColor: '#ddd' },
   featuredEventTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -231,57 +279,57 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
-  ambassadorsList: {
-    paddingHorizontal: 10,
-    paddingBottom: 20,
-  },
   ambassadorCard: {
-    width: 120,
-    height: 220,
-    marginHorizontal: 5,
-    alignItems: 'center',
+    width: 150,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
+    marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
   },
   ambassadorAvatar: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignSelf: 'center',
     marginBottom: 10,
   },
   ambassadorName: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: 'bold',
     textAlign: 'center',
-    width: 110,
-    overflow: 'hidden',
-    ellipsizeMode: 'tail',
+    marginBottom: 5,
   },
   ambassadorDetail: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    width: 110,
-    overflow: 'hidden',
-    flexWrap: 'nowrap',
-    ellipsizeMode: 'tail',
+    marginBottom: 2,
   },
   ambassadorLocation: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'center',
     marginBottom: 10,
-    width: 110,
-    overflow: 'hidden',
-    ellipsizeMode: 'tail',
   },
   addFriendButton: {
     backgroundColor: '#2E4D40',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 15,
+    padding: 8,
+    borderRadius: 20,
+    alignItems: 'center',
   },
   addFriendText: {
     color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  ambassadorsList: {
+    paddingHorizontal: 15,
+    paddingBottom: 5,
   },
 });
 

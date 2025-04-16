@@ -82,11 +82,11 @@ const LoginScreen = observer(() => {
               />
             </View>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.forgotPasswordContainer}
               onPress={() => console.log('Forgot password')}>
               <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
               style={styles.loginButton}

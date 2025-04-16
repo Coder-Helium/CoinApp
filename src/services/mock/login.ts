@@ -60,7 +60,7 @@ export const mockRegisterResponse = (userData: any) => {
 export const mockRegisterFailedResponse = () => {
   return {
     code: 500,
-    message: '邮箱已被注册',
+    message: 'the email has been registered',
     data: null,
   };
 };

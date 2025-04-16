@@ -41,6 +41,7 @@ export default function useConnections(filterState: FilterState = DEFAULT_FILTER
       const response = await connectionApi.getConnections(pageNum, 6, currentUserId, filters);
 
       if (response.code === 200 && response.data) {
+        console.log('fetchConnections response:', response.data);
         const records = response.data.records || [];
         setConnections(records);
       } else {

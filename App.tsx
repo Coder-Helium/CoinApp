@@ -58,6 +58,7 @@ export type ConnectionsStackParamList = {
 export type ConversationsStackParamList = {
   ConversationsList: undefined;
   Chat: {userId: number; username: string};
+  WebSocketTest: undefined;
 };
 
 // Define the param list for the profile stack
@@ -167,6 +168,14 @@ const ConversationsStackNavigator = () => {
         options={({route}) => ({
           title: route.params.username,
         })}
+      />
+      <ConversationsStack.Screen
+        name="WebSocketTest"
+        component={require('./src/screens/conversations/WebSocketTest').default}
+        options={{
+          title: 'WebSocket Test',
+          headerShown: true,
+        }}
       />
     </ConversationsStack.Navigator>
   );

@@ -37,15 +37,24 @@ const ChatScreen = observer(() => {
     });
     conversationStore.fetchMessages(userId);
 
-    // 标记消息为已读 - 注释掉不存在的方法
-    // Mark messages as read - commented out non-existent method
-    // conversationStore.markAsRead(route.params.userId);
+    // 确保WebSocket连接
+    if (!conversationStore.wsConnected) {
+      // 使用mock WebSocket服务器
+      conversationStore.connectWebSocket('ws://mock');
+    }
 
+    // 组件卸载时的清理
     return () => {
-      // 如果需要清理
-      // If cleanup is needed
+      // 不断开WebSocket连接，因为它可能还需要在其他地方使用
     };
   }, [navigation, username, userId, conversationStore]);
+
+  // 监听消息列表变化，自动滚动到底部
+  useEffect(() => {
+    if (flatListRef.current && conversationStore.currentMessages.length > 0) {
+      flatListRef.current.scrollToEnd({animated: true});
+    }
+  }, [conversationStore.currentMessages]);
 
   const sendMessage = () => {
     if (message.trim()) {
@@ -56,7 +65,7 @@ const ChatScreen = observer(() => {
   };
 
   const renderMessageItem = ({item}: {item: any}) => {
-    const isMyMessage = item.senderId === 'me';
+    const isMyMessage = item.senderId === 0; // 当前用户ID为0
     return (
       <View
         style={[
@@ -69,7 +78,7 @@ const ChatScreen = observer(() => {
             isMyMessage ? styles.myMessageBubble : styles.theirMessageBubble,
           ]}>
           <Text style={styles.messageText}>{item.text}</Text>
-          <Text style={styles.messageTime}>{item.time}</Text>
+          <Text style={styles.messageTime}>{item.timestamp}</Text>
         </View>
       </View>
     );
@@ -90,6 +99,17 @@ const ChatScreen = observer(() => {
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
+        {/* 显示WebSocket连接状态 */}
+        <View style={styles.wsStatusContainer}>
+          <View style={[
+            styles.wsStatusIndicator, 
+            {backgroundColor: conversationStore.wsConnected ? '#4CAF50' : '#FF5252'}
+          ]} />
+          <Text style={styles.wsStatusText}>
+            {conversationStore.wsConnected ? '实时连接已建立' : '实时连接断开'}
+          </Text>
+        </View>
+        
         <FlatList
           ref={flatListRef}
           data={conversationStore.currentMessages}
@@ -112,12 +132,12 @@ const ChatScreen = observer(() => {
           <TouchableOpacity
             style={styles.sendButton}
             onPress={sendMessage}
-            disabled={!message.trim()}>
+            disabled={!message.trim() || !conversationStore.wsConnected}>
             {/* 使用Ionicons代替Text */}
             <Ionicons 
               name="send" 
               size={24} 
-              color={message.trim() ? '#006400' : '#ccc'} 
+              color={message.trim() && conversationStore.wsConnected ? '#006400' : '#ccc'} 
             />
           </TouchableOpacity>
         </View>
@@ -192,6 +212,25 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  wsStatusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+    backgroundColor: '#f9f9f9',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  wsStatusIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 5,
+  },
+  wsStatusText: {
+    fontSize: 12,
+    color: '#666',
   },
 });
 
