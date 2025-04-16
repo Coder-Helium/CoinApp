@@ -58,7 +58,7 @@ const WebSocketTestScreen = observer(() => {
     wsService.on('disconnected', disconnectedHandler);
     
     // Connect to WebSocket
-    conversationStore.connectWebSocket('ws://mock').then(success => {
+    conversationStore.connectWebSocket('ws://54.252.49.201:8080').then(success => {
       if (success) {
         setConnected(true);
         addLog('WebSocket connected');
@@ -134,7 +134,7 @@ const WebSocketTestScreen = observer(() => {
       setConnected(false);
       addLog('WebSocket disconnected');
     } else {
-      const success = await conversationStore.connectWebSocket('ws://mock');
+      const success = await conversationStore.connectWebSocket('ws://54.252.49.201:8080');
       setConnected(success);
       if (success) {
         addLog('WebSocket connected');

@@ -57,7 +57,7 @@ export type ConnectionsStackParamList = {
 // Define the param list for the conversations stack
 export type ConversationsStackParamList = {
   ConversationsList: undefined;
-  Chat: {userId: number; username: string};
+  Chat: {userId: number; username: string; contactId: number};
   WebSocketTest: undefined;
 };
 

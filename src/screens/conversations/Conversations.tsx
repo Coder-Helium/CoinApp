@@ -14,6 +14,7 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import {observer} from 'mobx-react-lite';
 import {useConversationStore} from '../../hooks/useConversationStore';
 import type {ConversationsStackParamList} from '../../../App';
+import {useAuthStore} from '../../hooks/useAuthStore';
 
 type ConversationsScreenNavigationProp = StackNavigationProp<
   ConversationsStackParamList,
@@ -23,45 +24,52 @@ type ConversationsScreenNavigationProp = StackNavigationProp<
 const ConversationsScreen = observer(() => {
   const navigation = useNavigation<ConversationsScreenNavigationProp>();
   const conversationStore = useConversationStore();
-
+  const authStore = useAuthStore();
+  const currentUserId = authStore.user?.id;
   useEffect(() => {
-    conversationStore.fetchConversations();
-  }, [conversationStore]);
+    conversationStore.fetchConversations(currentUserId);
+  }, [conversationStore, currentUserId]);
 
-  const renderConversationItem = ({item}: {item: any}) => (
-    <TouchableOpacity
-      style={styles.conversationItem}
-      onPress={() =>
-        navigation.navigate('Chat', {
-          userId: item.userId,
-          username: item.userName,
-        })
-      }>
-      <View style={styles.avatarContainer}>
-        <Image source={{uri: item.userAvatar}} style={styles.avatar} />
-        {item.unreadCount > 0 && (
-          <View style={styles.unreadBadge}>
-            <Text style={styles.unreadCount}>{item.unreadCount}</Text>
-          </View>
-        )}
-      </View>
-      <View style={styles.conversationInfo}>
-        <View style={styles.conversationHeader}>
-          <Text style={styles.userName}>{item.userName}</Text>
-          <Text style={styles.timeStamp}>{item.lastMessageTime}</Text>
+  const renderConversationItem = ({item}: {item: any}) => {
+    // 获取未读消息数，如果不存在则默认为0
+    const unreadCount = item.unreadCount || 0;
+
+    return (
+      <TouchableOpacity
+        style={styles.conversationItem}
+        onPress={() =>
+          navigation.navigate('Chat', {
+            userId: authStore.user?.id || 0,
+            contactId: item.contactId,
+            username: item.contactName,
+          })
+        }>
+        <View style={styles.avatarContainer}>
+          <Image source={{uri: item.contactAvatar}} style={styles.avatar} />
+          {unreadCount > 0 && (
+            <View style={styles.unreadBadge}>
+              <Text style={styles.unreadCount}>{unreadCount}</Text>
+            </View>
+          )}
         </View>
-        <Text
-          style={[
-            styles.lastMessage,
-            item.unreadCount > 0 && styles.unreadMessage,
-          ]}
-          numberOfLines={1}
-          ellipsizeMode="tail">
-          {item.lastMessage}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+        <View style={styles.conversationInfo}>
+          <View style={styles.conversationHeader}>
+            <Text style={styles.userName}>{item.contactName}</Text>
+            <Text style={styles.timeStamp}>{new Date(item.lastMessageTime).toLocaleDateString('zh-CN', {year: 'numeric', month: 'numeric', day: 'numeric'})}</Text>
+          </View>
+          <Text
+            style={[
+              styles.lastMessage,
+              unreadCount > 0 && styles.unreadMessage,
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail">
+            {typeof item.lastMessage === 'object' ? item.lastMessage.content : item.lastMessage}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (conversationStore.loading) {
     return (
@@ -84,7 +92,7 @@ const ConversationsScreen = observer(() => {
       <FlatList
         data={conversationStore.conversations}
         renderItem={renderConversationItem}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.conversationsList}
       />
     </SafeAreaView>

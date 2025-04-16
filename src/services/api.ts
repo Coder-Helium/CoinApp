@@ -16,6 +16,7 @@ const api = axios.create({
 // 请求拦截器，添加token
 api.interceptors.request.use(
   async (config) => {
+    console.log('请求拦截器', config);
     const token = await AsyncStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -559,6 +560,22 @@ export const messageApi = {
       return response.data;
     } catch (error) {
       console.error('获取聊天记录失败:', error);
+      return [];
+    }
+  },
+
+  // 获取用户的最新对话列表
+  getLatestConversations: async (userId: number) => {
+    try {
+      const response = await api.get(`/message/latest/${userId}`);
+      console.log('get latest conversations response', response);
+      if (response.status === 200) {
+        console.log('get latest conversations data', response.data);
+        return response.data;
+      }
+      return [];
+    } catch (error) {
+      console.error('获取最新对话列表失败:', error);
       return [];
     }
   },

@@ -1,12 +1,12 @@
 import {makeAutoObservable} from 'mobx';
-import {conversationApi} from '../services/mock/conversations';
-import type {Conversation, Message} from '../services/mock/conversations';
+import type {Conversation} from '../services/mock/conversations';
 import {wsService} from '../services/websocket';
+import {messageApi} from '../services/api';
 import type {WebSocketMessage} from '../services/websocket/types';
 
 class ConversationStore {
   conversations: Conversation[] = [];
-  currentMessages: Message[] = [];
+  currentMessages: any = [];
   currentUserId: number | null = null;
   loading = false;
   sendingMessage = false;
@@ -44,7 +44,7 @@ class ConversationStore {
   };
 
   // 处理新消息
-  private handleNewMessage(message: Message) {
+  private handleNewMessage(message: any) {
     // 如果是当前对话，添加到当前消息列表
     if (this.currentUserId === message.senderId) {
       this.currentMessages.push(message);
@@ -95,10 +95,11 @@ class ConversationStore {
     this.wsConnected = connected;
   }
 
-  async fetchConversations() {
+  async fetchConversations(userId: any) {
     this.loading = true;
     try {
-      const data = await conversationApi.getConversations();
+      const data = await messageApi.getLatestConversations(userId);
+      console.log('get conversations data', data);
       this.conversations = data;
     } catch (error) {
       console.error(error);
@@ -107,14 +108,14 @@ class ConversationStore {
     }
   }
 
-  async fetchMessages(userId: number) {
+  async fetchMessages(userId: number, contactId: number) {
     this.loading = true;
     this.currentUserId = userId;
     try {
-      const data = await conversationApi.getMessages(userId);
+      const data = await messageApi.getMessagesBetweenUsers(userId, contactId);
       this.currentMessages = data;
       // 标记消息为已读
-      await conversationApi.markAsRead(userId);
+      //await messageApi.markAsRead(userId);
       // 更新对话列表中的未读数
       const conversation = this.conversations.find(c => c.userId === userId);
       if (conversation) {
@@ -134,7 +135,7 @@ class ConversationStore {
 
     this.sendingMessage = true;
     try {
-      const newMessage = await conversationApi.sendMessage(
+      const newMessage = await messageApi.sendMessage(
         this.currentUserId,
         text,
       );

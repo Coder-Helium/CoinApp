@@ -26,7 +26,7 @@ type ChatNavigationProp = StackNavigationProp<ConversationsStackParamList, 'Chat
 const ChatScreen = observer(() => {
   const route = useRoute<ChatRouteProp>();
   const navigation = useNavigation<ChatNavigationProp>();
-  const {userId, username} = route.params;
+  const {userId, contactId, username} = route.params;
   const [message, setMessage] = useState('');
   const flatListRef = useRef<FlatList>(null);
   const conversationStore = useConversationStore();
@@ -35,12 +35,14 @@ const ChatScreen = observer(() => {
     navigation.setOptions({
       title: username,
     });
-    conversationStore.fetchMessages(userId);
+    console.log('userId', userId);
+    console.log('contactId', contactId);
+    conversationStore.fetchMessages(userId, contactId);
 
     // 确保WebSocket连接
     if (!conversationStore.wsConnected) {
       // 使用mock WebSocket服务器
-      conversationStore.connectWebSocket('ws://mock');
+      conversationStore.connectWebSocket('ws://54.252.49.201:8080');
     }
 
     // 组件卸载时的清理
@@ -102,14 +104,14 @@ const ChatScreen = observer(() => {
         {/* 显示WebSocket连接状态 */}
         <View style={styles.wsStatusContainer}>
           <View style={[
-            styles.wsStatusIndicator, 
-            {backgroundColor: conversationStore.wsConnected ? '#4CAF50' : '#FF5252'}
+            styles.wsStatusIndicator,
+            {backgroundColor: conversationStore.wsConnected ? '#4CAF50' : '#FF5252'},
           ]} />
           <Text style={styles.wsStatusText}>
-            {conversationStore.wsConnected ? '实时连接已建立' : '实时连接断开'}
+            {conversationStore.wsConnected ? 'connected' : 'disconnected'}
           </Text>
         </View>
-        
+
         <FlatList
           ref={flatListRef}
           data={conversationStore.currentMessages}
@@ -134,10 +136,10 @@ const ChatScreen = observer(() => {
             onPress={sendMessage}
             disabled={!message.trim() || !conversationStore.wsConnected}>
             {/* 使用Ionicons代替Text */}
-            <Ionicons 
-              name="send" 
-              size={24} 
-              color={message.trim() && conversationStore.wsConnected ? '#006400' : '#ccc'} 
+            <Ionicons
+              name="send"
+              size={24}
+              color={message.trim() && conversationStore.wsConnected ? '#006400' : '#ccc'}
             />
           </TouchableOpacity>
         </View>
@@ -234,4 +236,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatScreen; 
+export default ChatScreen;
