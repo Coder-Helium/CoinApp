@@ -115,7 +115,7 @@ class ConversationStore {
       const data = await messageApi.getMessagesBetweenUsers(userId, contactId);
       this.currentMessages = data;
       // 标记消息为已读
-      //await messageApi.markAsRead(userId);
+      await messageApi.markAsRead(userId);
       // 更新对话列表中的未读数
       const conversation = this.conversations.find(c => c.userId === userId);
       if (conversation) {

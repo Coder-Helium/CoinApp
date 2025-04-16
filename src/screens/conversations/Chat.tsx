@@ -35,21 +35,20 @@ const ChatScreen = observer(() => {
     navigation.setOptions({
       title: username,
     });
-    console.log('userId', userId);
-    console.log('contactId', contactId);
     conversationStore.fetchMessages(userId, contactId);
 
     // 确保WebSocket连接
     if (!conversationStore.wsConnected) {
-      // 使用mock WebSocket服务器
-      conversationStore.connectWebSocket('ws://54.252.49.201:8080');
+      // 使用SockJS连接
+      // 注意：SockJS URL应该使用http://而不是ws://
+      conversationStore.connectWebSocket('http://54.252.49.201:8080/sockjs');
     }
 
     // 组件卸载时的清理
     return () => {
       // 不断开WebSocket连接，因为它可能还需要在其他地方使用
     };
-  }, [navigation, username, userId, conversationStore]);
+  }, [navigation, username, userId, contactId, conversationStore]);
 
   // 监听消息列表变化，自动滚动到底部
   useEffect(() => {
@@ -79,8 +78,8 @@ const ChatScreen = observer(() => {
             styles.messageBubble,
             isMyMessage ? styles.myMessageBubble : styles.theirMessageBubble,
           ]}>
-          <Text style={styles.messageText}>{item.text}</Text>
-          <Text style={styles.messageTime}>{item.timestamp}</Text>
+          <Text style={styles.messageText}>{item.content}</Text>
+          <Text style={styles.messageTime}>{new Date(item.createdAt).toLocaleDateString('zh-CN', {year: 'numeric', month: 'numeric', day: 'numeric'})}</Text>
         </View>
       </View>
     );
@@ -116,7 +115,7 @@ const ChatScreen = observer(() => {
           ref={flatListRef}
           data={conversationStore.currentMessages}
           renderItem={renderMessageItem}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={(item, index) => index.toString()}
           contentContainerStyle={styles.messagesList}
           onContentSizeChange={() =>
             flatListRef.current?.scrollToEnd({animated: true})

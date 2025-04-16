@@ -83,11 +83,11 @@ const ConversationsScreen = observer(() => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Conversations</Text>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.wsTestButton}
           onPress={() => navigation.navigate('WebSocketTest')}>
           <Text style={styles.wsTestButtonText}>WebSocket测试</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <FlatList
         data={conversationStore.conversations}
