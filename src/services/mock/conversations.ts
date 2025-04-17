@@ -1,8 +1,20 @@
 export type User = {
   id: number;
   name: string;
-  avatar: string;
-  lastSeen: string;
+  levelOfStudy: string;
+  email: string;
+  passwordHash: string;
+  createdAt: string;
+  userType: string;
+  userCity: string;
+  userCountry: string;
+  userField: string;
+  userLanguage: string;
+  userRegions: string;
+  userUni: string;
+  emailVerified: number
+  userIcon: null;
+  coin: number;
 };
 
 export type Message = {
@@ -23,6 +35,27 @@ export type Conversation = {
   lastMessageTime: string;
   unreadCount: number;
 };
+
+export type requestinfo = {
+  status: string;
+  friendname: string;
+  friendId: number;
+  userId: number;
+  //university: string;
+  //department: string;
+  //avatar: string;
+}
+
+export type request = {
+  id: number;
+  name: string;
+  university: string;
+  department: string;
+  avatar: string;
+}
+
+
+
 
 // 模拟用户数据
 export const mockUsers: User[] = [

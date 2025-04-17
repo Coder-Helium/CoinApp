@@ -117,6 +117,23 @@ android {
             ]
         }
     }
+
+    afterEvaluate {
+    tasks.named("mapDebugSourceSetPaths").configure {
+        dependsOn ":react-native-vector-icons:writeDebugAarMetadata"
+    }
+
+    afterEvaluate {
+    tasks.named("generateDebugResources").configure {
+        dependsOn ":react-native-vector-icons:packageDebugResources"
+        dependsOn ":react-native-vector-icons:generateDebugResValues"
+        dependsOn ":react-native-vector-icons:generateCodegenArtifactsFromSchema"
+        dependsOn ":react-native-vector-icons:generateCodegenSchemaFromJavaScript"
+        dependsOn ":react-native-vector-icons:writeDebugAarMetadata"
+    }
+}
+
+}
 }
 
 dependencies {

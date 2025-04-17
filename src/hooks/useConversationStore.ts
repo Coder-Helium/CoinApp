@@ -1,11 +1,29 @@
 import {makeAutoObservable} from 'mobx';
-import type {Conversation} from '../services/mock/conversations';
+import type {Conversation, request, requestinfo, User} from '../services/mock/conversations';
 import {wsService} from '../services/websocket';
-import {messageApi} from '../services/api';
+import {messageApi, friendApi, connectionApi} from '../services/api';
 import type {WebSocketMessage} from '../services/websocket/types';
+import { cacheStores } from '../../metro.config';
 
 class ConversationStore {
   conversations: Conversation[] = [];
+  requestinfo: requestinfo[] = [];
+  request: request[] = [
+    {
+      id: 1,
+      name: 'David Liu',
+      university: 'University of Queensland',
+      department: 'Engineering',
+      avatar: 'https://picsum.photos/id/1074/200',
+    },
+    {
+      id: 2,
+      name: 'James Wilson',
+      university: 'Monash University',
+      department: 'Medicine',
+      avatar: 'https://picsum.photos/id/1012/200',
+    },
+  ];
   currentMessages: any = [];
   currentUserId: number | null = null;
   loading = false;
@@ -105,6 +123,97 @@ class ConversationStore {
       console.error(error);
     } finally {
       this.loading = false;
+    }
+  }
+
+  async addFriend(userId: number, friendId: number) {
+    this.loading = true;  
+    try{
+      const data = await friendApi.sendFriendRequest(userId, friendId);
+      return data;
+    } 
+    catch (error) {
+      console.error(error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async fetchRequest(userId: any) {
+    this.loading = true;
+    try {
+      // Fetch friend requests
+      const friendRequests = await friendApi.getFriendRequests(userId);
+      console.log('Friend requests:', friendRequests);
+
+      if (!friendRequests || friendRequests.length === 0) {
+        console.error('No friend requests found');
+        return;
+      }
+      else{
+        this.requestinfo = friendRequests.map((request: any) => ({
+          status: request.Status || 'unknown', // Map "Status" to "status"
+          friendname: request.friend_name || 'Unknown', // Map "friend_name" to "friendname"
+          friendId: request.UID, // Map "Friend_ID" to "friendId"
+          userId: request.Friend_ID, // Map "UID" to "userId"
+        }));
+
+        const requestsWithDetails = await Promise.all(
+          this.requestinfo.map(async (info) => {
+            const userDetails = await connectionApi.getUserProfile(info.friendId);
+            return {
+              id: info.friendId,
+              name: userDetails?.name || 'Unknown',
+              university: userDetails?.userUni || 'Unknown University',
+              department: userDetails?.userField || 'Unknown Department',
+              avatar: userDetails?.userIcon || 'https://picsum.photos/200', // Default avatar
+            };
+          })
+        );
+
+        this.request = requestsWithDetails;
+      }
+
+      // Update the request array with detailed information
+      
+      console.log('Updated request array:', this.request);
+    } catch (error) {
+      console.error('Error fetching friend requests:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async acceptFriendRequest(userId: number, friendId: number) {
+    this.request = this.request.filter(req => req.id !== friendId);
+    try {
+      const success = await friendApi.processFriendRequest(userId, friendId, 'accept');
+      if (success) {
+        console.log(`Friend request from ${friendId} accepted.`);
+        // Remove the accepted request from the list
+        
+      }
+      return success;
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+      return false;
+    }
+  
+  }
+
+  async rejectFriendRequest(userId: number, friendId: number) {
+    this.request = this.request.filter(req => req.id !== friendId);
+    try {
+      const success = await friendApi.processFriendRequest(userId, friendId, 'reject');
+      if (success) {
+        console.log(`Friend request from ${friendId} rejected.`);
+        // Remove the rejected request from the list
+      
+      }
+      return success;
+    } catch (error) {
+      console.error('Error rejecting friend request:', error);
+      return false;
     }
   }
 
