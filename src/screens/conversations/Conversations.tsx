@@ -76,21 +76,19 @@ const ConversationsScreen = observer(() => {
     );
   };
 
-  const renderFriendRequestItem = ({ item }: { item: request }) => {
+  const renderFriendRequestItem = ({ item }: { item: any }) => {
     return (
       <View key={item.id} style={styles.requestCard}>
-        <Image source={{ uri: item.avatar }} style={styles.avatar} />
+        <Image source={{ uri: `https://picsum.photos/id/${item.Friend_ID % 100 + 100}/200` }} style={styles.requestAvatar} />
         <View style={styles.requestInfo}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.university}>{item.university || 'Unknown University'}</Text>
-          <Text style={styles.department}>{item.department || 'Unknown Department'}</Text>
+          <Text style={styles.name}>{item.friend_name}</Text>
         </View>
         <View style={styles.requestActions}>
           <TouchableOpacity
             style={styles.acceptButton}
             onPress={() => {
               if (currentUserId !== undefined) {
-                conversationStore.acceptFriendRequest(currentUserId, item.id);
+                conversationStore.acceptFriendRequest(currentUserId, item.Friend_ID);
               } else {
                 console.error('Current user ID is undefined');
               }
@@ -125,38 +123,15 @@ const ConversationsScreen = observer(() => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Add Friend by ID Section */}
-      <View style={styles.addFriendContainer}>
-        <Text style={styles.addFriendTitle}>Add Friend by ID</Text>
-        <View style={styles.addFriendRow}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter Friend ID"
-            value={friendId}
-            onChangeText={setFriendId}
-            keyboardType="numeric"
-          />
-          <TouchableOpacity
-            style={styles.addFriendButton}
-            onPress={() => {
-              if (currentUserId !== undefined) {
-                conversationStore.addFriend(currentUserId, Number(friendId));
-              } else {
-                console.error('Current user ID is undefined');
-              }
-            }}>
-            <Text style={styles.addFriendButtonText}>Add</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+
 
       {conversationStore.request.length > 0 && (
         <View style={styles.friendRequestsContainer}>
           <Text style={styles.friendRequestsTitle}>Connection Requests</Text>
           <FlatList
-            data={conversationStore.request}
+            data={conversationStore.requestinfo}
             renderItem={renderFriendRequestItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item, index) => index.toString()}
           />
         </View>
       )}
@@ -307,66 +282,82 @@ const styles = StyleSheet.create({
     marginRight: 10, // Add spacing between the input and button
   },
   friendRequestsContainer: {
-    padding: 15,
-    backgroundColor: '#f9f9f9',
-    marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#fff',
+    marginBottom: 8,
   },
   friendRequestsTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   requestCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    marginBottom: 8,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+  },
+  requestAvatar: {
+    width: 55,
+    height: 55,
+    borderRadius: 27.5,
   },
   requestInfo: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 12,
   },
   name: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    marginBottom: 1,
   },
   university: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#777',
+    marginBottom: 1,
   },
   department: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#777',
+    marginBottom: 3,
   },
   requestTime: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#999',
   },
   requestActions: {
-    flexDirection: 'column', // Change to column for vertical alignment
-    justifyContent: 'space-between', // Add spacing between buttons
-    alignItems: 'flex-start', // Align buttons to the left
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: 90,
   },
   acceptButton: {
-    backgroundColor: '#006400',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    backgroundColor: '#2E7D32',
+    paddingVertical: 7,
+    paddingHorizontal: 12,
     borderRadius: 5,
-    marginBottom: 10, // Add spacing between the buttons
+    marginBottom: 8,
+    width: 80,
+    alignItems: 'center',
   },
   declineButton: {
     backgroundColor: '#f0f0f0',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
     borderRadius: 5,
+    width: 80,
+    alignItems: 'center',
   },
   acceptButtonText: {
     color: '#fff',
     fontWeight: '600',
+    fontSize: 14,
   },
   declineButtonText: {
-    color: '#666',
+    color: '#777',
     fontWeight: '600',
     fontSize: 14,
   },

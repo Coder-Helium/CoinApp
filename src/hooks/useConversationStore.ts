@@ -7,7 +7,7 @@ import { cacheStores } from '../../metro.config';
 
 class ConversationStore {
   conversations: Conversation[] = [];
-  requestinfo: requestinfo[] = [];
+  requestinfo: any[] = [];
   request: request[] = [
     {
       id: 1,
@@ -151,12 +151,7 @@ class ConversationStore {
         return;
       }
       else{
-        this.requestinfo = friendRequests.map((request: any) => ({
-          status: request.Status || 'unknown', // Map "Status" to "status"
-          friendname: request.friend_name || 'Unknown', // Map "friend_name" to "friendname"
-          friendId: request.UID, // Map "Friend_ID" to "friendId"
-          userId: request.Friend_ID, // Map "UID" to "userId"
-        }));
+        this.requestinfo = friendRequests
 
         const requestsWithDetails = await Promise.all(
           this.requestinfo.map(async (info) => {
