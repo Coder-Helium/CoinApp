@@ -1,149 +1,452 @@
-# REKRO 社交网络应用
+# REKRO Social Networking Application
 
-REKRO是一个面向用户社交互动的移动应用程序，专注于促进用户之间的社交互动、活动共享和实时聊天功能。该应用使用React Native和Expo开发，提供跨平台兼容性。
+REKRO is a mobile application focused on social interactions, enabling users to connect, share activities, and engage in real-time conversations. Developed with React Native and Expo, it offers cross-platform compatibility for both iOS and Android devices.
 
-## 应用功能
+## Application Overview
 
-### 核心功能
+REKRO bridges social gaps by creating platforms for users to discover events, connect with like-minded individuals, and build meaningful relationships through intuitive digital interactions.
 
-- **用户认证系统**：支持注册、登录和个人资料设置
-- **首页动态流**：展示推荐活动和潜在社交联系
-- **活动发现与参与**：浏览、查看详情和参加各种活动
-- **社交连接**：添加朋友、查看用户资料
-- **实时聊天**：与联系人进行私人对话，支持WebSocket实时消息
-- **个人资料管理**：查看和编辑个人信息，管理关注者和正在关注的人
+### Core Features
 
-### 技术特点
+- **User Authentication System**
+  - Secure registration and login process
+  - Password recovery functionality
+  - Multi-factor authentication options
+  - Session management and token-based authentication
+  - Profile setup with customizable fields
 
-- 使用MobX进行状态管理
-- React Navigation实现应用导航
-- 支持实时数据通信
-- 响应式用户界面设计
+- **Home Feed**
+  - Personalized activity recommendations based on user preferences
+  - Potential social connections suggested by algorithm
+  - Real-time updates for friend activities
+  - Customizable feed filtering options
+  - Pull-to-refresh and infinite scrolling implementation
 
-## 项目结构
+- **Event Discovery & Participation**
+  - Browse events by category, location, or date
+  - Detailed event information including description, attendees, and location
+  - RSVP functionality with calendar integration
+  - Event creation and management for hosts
+  - Rating and review system for past events
+  - Location-based event suggestions with map integration
+
+- **Social Connections**
+  - Friend request system with notifications
+  - User profile viewing with activity history
+  - Connection recommendations based on mutual interests
+  - Block and report functionality for user safety
+  - Privacy controls for sharing information
+
+- **Real-time Chat**
+  - Private conversations with contacts using WebSockets
+  - Media sharing capabilities (images, documents)
+  - Read receipts and typing indicators
+  - Message search functionality
+  - Push notifications for new messages
+  - Offline message queuing
+
+- **Profile Management**
+  - View and edit personal information
+  - Manage followers and following lists
+  - Privacy settings configuration
+  - Activity history and statistics
+  - Customizable profile themes
+
+### Technical Features
+
+- State management with MobX for efficient UI updates
+- Seamless navigation with React Navigation
+- Real-time data communication via WebSockets
+- Responsive UI design adapting to various screen sizes
+- Offline data persistence with AsyncStorage
+- Type-safe development using TypeScript
+- Performance optimizations for smooth user experience
+
+## Project Structure
 
 ```
-├── src/                  # 源代码目录
-│   ├── assets/           # 图像和静态资源
-│   ├── hooks/            # 自定义React Hooks
-│   ├── screens/          # 应用屏幕组件
-│   │   ├── auth/         # 认证相关屏幕
-│   │   ├── connections/  # 社交连接功能
-│   │   ├── conversations/# 聊天对话功能
-│   │   ├── events/       # 活动相关功能
-│   │   ├── home/         # 主页屏幕
-│   │   └── profile/      # 用户资料屏幕
-│   ├── services/         # API服务和数据访问
-│   ├── styles/           # 共享样式
-│   └── types/            # TypeScript类型定义
-├── App.tsx               # 应用入口组件
-├── app.json              # Expo配置
-└── package.json          # 依赖和脚本
+├── src/                  # Source code directory
+│   ├── assets/           # Images and static resources
+│   │   ├── images/       # Application images and icons
+│   │   ├── fonts/        # Custom font files
+│   │   └── animations/   # Lottie animation files
+│   │
+│   ├── components/       # Reusable UI components
+│   │   ├── common/       # Shared components (buttons, inputs, etc.)
+│   │   ├── forms/        # Form-related components
+│   │   ├── layout/       # Layout components
+│   │   └── modals/       # Modal dialogs
+│   │
+│   ├── hooks/            # Custom React Hooks
+│   │   ├── useAuth.ts    # Authentication hooks
+│   │   ├── useSocket.ts  # WebSocket connection hooks
+│   │   └── useTheme.ts   # Theme management hooks
+│   │
+│   ├── screens/          # Application screen components
+│   │   ├── auth/         # Authentication-related screens
+│   │   │   ├── Login.tsx
+│   │   │   ├── Register.tsx
+│   │   │   └── ForgotPassword.tsx
+│   │   │
+│   │   ├── connections/  # Social connection features
+│   │   │   ├── FriendList.tsx
+│   │   │   ├── FriendRequests.tsx
+│   │   │   └── PeopleSearch.tsx
+│   │   │
+│   │   ├── conversations/# Chat conversation features
+│   │   │   ├── ChatList.tsx
+│   │   │   ├── ChatRoom.tsx
+│   │   │   └── MessageComposer.tsx
+│   │   │
+│   │   ├── events/       # Event-related features
+│   │   │   ├── EventList.tsx
+│   │   │   ├── EventDetails.tsx
+│   │   │   └── EventCreation.tsx
+│   │   │
+│   │   ├── home/         # Home screen
+│   │   │   ├── HomeFeed.tsx
+│   │   │   ├── Notifications.tsx
+│   │   │   └── ActivityFeed.tsx
+│   │   │
+│   │   └── profile/      # User profile screens
+│   │       ├── UserProfile.tsx
+│   │       ├── EditProfile.tsx
+│   │       └── Settings.tsx
+│   │
+│   ├── services/         # API services and data access
+│   │   ├── api/          # API client configuration
+│   │   │   ├── client.ts
+│   │   │   └── endpoints.ts
+│   │   │
+│   │   ├── auth/         # Authentication services
+│   │   ├── events/       # Event-related services
+│   │   ├── chat/         # Chat-related services
+│   │   └── users/        # User-related services
+│   │
+│   ├── stores/           # MobX state stores
+│   │   ├── authStore.ts
+│   │   ├── eventStore.ts
+│   │   ├── chatStore.ts
+│   │   └── rootStore.ts
+│   │
+│   ├── navigation/       # Navigation configuration
+│   │   ├── AppNavigator.tsx
+│   │   ├── AuthNavigator.tsx
+│   │   └── TabNavigator.tsx
+│   │
+│   ├── styles/           # Shared styles
+│   │   ├── colors.ts
+│   │   ├── spacing.ts
+│   │   ├── typography.ts
+│   │   └── theme.ts
+│   │
+│   ├── utils/            # Utility functions
+│   │   ├── datetime.ts
+│   │   ├── validation.ts
+│   │   └── storage.ts
+│   │
+│   └── types/            # TypeScript type definitions
+│       ├── auth.types.ts
+│       ├── event.types.ts
+│       ├── user.types.ts
+│       └── chat.types.ts
+│
+├── App.tsx               # Application entry component
+├── app.json              # Expo configuration
+├── babel.config.js       # Babel configuration
+├── tsconfig.json         # TypeScript configuration
+└── package.json          # Dependencies and scripts
 ```
 
-## 技术栈
+## Technology Stack
 
-- **前端框架**：React Native (v0.76.9)
-- **UI库**：React Native原生组件
-- **状态管理**：MobX (v6.13.6)
-- **导航**：React Navigation (v7.x)
-- **HTTP客户端**：Axios (v1.7.9)
-- **数据存储**：AsyncStorage
-- **实时通信**：WebSocket (sockjs-client)
-- **开发环境**：Expo (v52.0.46)
+- **Frontend Framework**: React Native (v0.76.9)
+  - Cross-platform mobile application development
+  - Native performance with JavaScript/TypeScript
 
-## 安装与运行
+- **UI Library**: React Native components
+  - Custom styled components for consistent UI
+  - Animation libraries for enhanced UX
 
-### 先决条件
+- **State Management**: MobX (v6.13.6)
+  - Observable state management pattern
+  - Efficient rendering with computed values
+  - Action-based state mutations
+
+- **Navigation**: React Navigation (v7.x)
+  - Stack, Tab, and Drawer navigation options
+  - Screen transition animations
+  - Deep linking support
+
+- **HTTP Client**: Axios (v1.7.9)
+  - Promise-based HTTP client
+  - Request/response interceptors
+  - Automatic JSON transformation
+
+- **Data Storage**: AsyncStorage
+  - Persistent key-value storage
+  - Data caching mechanisms
+  - Encrypted storage for sensitive information
+
+- **Real-time Communication**: WebSocket (sockjs-client)
+  - Bidirectional communication channel
+  - Real-time updates and notifications
+  - Connection management with auto-reconnect
+
+- **Development Environment**: Expo (v52.0.46)
+  - Simplified React Native workflow
+  - Access to device APIs
+  - Over-the-air updates
+
+- **Testing Framework**:
+  - Jest for unit and integration tests
+  - Detox for end-to-end testing
+  - React Native Testing Library for component tests
+
+## Installation and Setup
+
+### Prerequisites
 
 - Node.js (>=18)
-- Yarn或npm
-- iOS/Android模拟器或真机调试设备
+- Yarn or npm package manager
+- iOS/Android simulator or physical device for testing
+- Expo CLI (`npm install -g expo-cli`)
 
-### 安装步骤
+### Installation Steps
 
-1. 克隆项目仓库
+1. Clone the repository
    ```bash
-   git clone [仓库URL]
+   git clone [repository-url]
    cd my-app
    ```
 
-2. 安装依赖
+2. Install dependencies
    ```bash
    yarn install
-   # 或
+   # or
    npm install
    ```
 
-3. 启动开发服务器
+3. Set up environment variables
+   ```bash
+   cp .env.example .env
+   # Update .env with your configuration
+   ```
+
+4. Start the development server
    ```bash
    yarn start
-   # 或
+   # or
    npm start
    ```
 
-4. 运行应用
-   - 按 `i` 在iOS模拟器上运行
-   - 按 `a` 在Android模拟器上运行
-   - 扫描QR码在Expo Go应用上运行
+5. Run the application
+   - Press `i` to run on iOS simulator
+   - Press `a` to run on Android simulator
+   - Scan the QR code with the Expo Go app on your device
 
-## 应用导航结构
+### Troubleshooting
 
-应用采用了嵌套导航结构：
+- If you encounter package resolution issues, try clearing the cache:
+  ```bash
+  expo start -c
+  ```
 
-1. **认证栈导航**：
-   - 登录
-   - 注册
-   - 个人资料设置
+- For iOS build issues, ensure Xcode and CocoaPods are properly installed:
+  ```bash
+  sudo gem install cocoapods
+  cd ios && pod install
+  ```
 
-2. **主标签导航**：
-   - 首页标签
-   - 活动标签
-   - 连接标签
-   - 聊天标签
-   - 账户标签
+- For Android build issues, verify that Android SDK is properly configured in your environment variables
 
-## 开发指南
+## Application Navigation Structure
 
-### 代码风格与规范
+The application implements a nested navigation structure:
 
-项目使用ESLint进行代码质量检查，采用TypeScript进行类型检查。
+1. **Root Navigator**:
+   - Controls authentication flow
+   - Handles deep linking
 
-### 添加新功能
+2. **Authentication Stack Navigator**:
+   - Login Screen
+   - Registration Screen
+   - Forgot Password Screen
+   - Profile Setup Screen
 
-1. 在适当的目录中创建新组件
-2. 在相应的导航栈中添加新屏幕
-3. 如需添加新的API服务，请在`services`目录中创建
+3. **Main Tab Navigator**:
+   - Home Tab
+     - Home Feed Screen
+     - Search Screen
+   - Events Tab
+     - Events List Screen
+     - Event Details Screen
+     - Event Creation Screen
+   - Connections Tab
+     - Friend List Screen
+     - Friend Requests Screen
+     - People Discovery Screen
+   - Chat Tab
+     - Conversations List Screen
+     - Chat Room Screen
+   - Profile Tab
+     - User Profile Screen
+     - Settings Screen
+     - Account Management Screen
 
-### 数据流
+4. **Modal Stack Navigator**:
+   - Notification Modal
+   - Photo Viewer Modal
+   - Share Content Modal
 
-1. 使用MobX Store管理应用状态
-2. 通过自定义Hooks连接组件与Store
-3. API请求通过服务层处理
+## Development Guidelines
 
-## 部署
+### Code Style and Standards
 
-### 构建生产版本
+The project uses ESLint for code quality checking and TypeScript for type checking. We follow a consistent coding style across the codebase:
+
+- Use functional components with hooks
+- Implement proper type definitions
+- Follow the container/presenter pattern
+- Maintain meaningful component naming conventions
+- Write comprehensive comments for complex logic
+
+### Environment Configuration
+
+The application supports multiple environments:
+
+- **Development**: Points to development API endpoints
+- **Staging**: Points to staging environment for testing
+- **Production**: Uses production API endpoints
+
+Configure environment-specific variables in the appropriate `.env` files.
+
+### Adding New Features
+
+1. Create new components in the appropriate directory
+   - Place reusable components in `src/components`
+   - Screen components go in `src/screens`
+
+2. Add new screens to the navigation stack
+   - Update the appropriate navigator in `src/navigation`
+   - Configure screen options as needed
+
+3. Add new API services
+   - Create service files in `src/services`
+   - Implement proper error handling and retries
+
+4. Update state management
+   - Add new stores or update existing ones in `src/stores`
+   - Follow MobX best practices for observables and actions
+
+### Data Flow Architecture
+
+1. **Store Layer**:
+   - MobX stores manage application state
+   - Stores provide actions for state mutations
+   - Computed values derive complex state
+
+2. **Service Layer**:
+   - API communication handled by services
+   - Services transform data between API and application formats
+   - Error handling and retry logic implemented here
+
+3. **Component Layer**:
+   - Components connect to stores via hooks
+   - Presentational components receive data via props
+   - User interactions trigger store actions
+
+### Performance Optimization Techniques
+
+- Implement virtualized lists for long scrolling content
+- Use memo and useCallback to prevent unnecessary re-renders
+- Optimize images for mobile devices
+- Implement proper loading states and skeleton screens
+- Use lazy loading for non-critical components
+
+## Testing Strategy
+
+### Unit Testing
+
+Unit tests focus on testing individual components and functions in isolation:
 
 ```bash
-expo build:android  # 构建Android APK
-expo build:ios      # 构建iOS IPA
+# Run unit tests
+yarn test
 ```
 
-### 发布更新
+### Integration Testing
+
+Integration tests verify that different parts of the application work together correctly:
 
 ```bash
-expo publish
+# Run integration tests
+yarn test:integration
 ```
 
-## 贡献指南
+### End-to-End Testing
 
-1. Fork该仓库
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建Pull Request
+E2E tests simulate user interactions to test complete workflows:
 
-## 许可证
+```bash
+# Run E2E tests
+yarn test:e2e
+```
 
-[添加许可证信息] 
+## Deployment
+
+### Building for Production
+
+```bash
+# Build for Android
+eas build -p android
+
+# Build for iOS
+eas build -p ios
+```
+
+### Publishing Updates
+
+```bash
+# Publish an update to existing builds
+eas update --branch production
+```
+
+### App Store Submission
+
+1. Generate production build
+2. Create app listings in App Store Connect and Google Play Console
+3. Upload builds using EAS Submit:
+   ```bash
+   eas submit -p ios
+   eas submit -p android
+   ```
+
+## Monitoring and Analytics
+
+The application integrates with monitoring and analytics tools:
+
+- **Error Tracking**: Sentry for real-time error monitoring
+- **Usage Analytics**: Firebase Analytics for user behavior insights
+- **Performance Monitoring**: Firebase Performance for tracking app performance
+
+## Contribution Guidelines
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+Please ensure your code adheres to our style guidelines and passes all tests.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- [React Native](https://reactnative.dev/)
+- [Expo](https://expo.dev/)
+- [MobX](https://mobx.js.org/)
+- [React Navigation](https://reactnavigation.org/) 
