@@ -210,6 +210,7 @@ const ProfileSetupScreen = observer(() => {
               },
             ]
           );
+          
         }
       }
     } catch (error) {

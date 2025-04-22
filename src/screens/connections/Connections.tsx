@@ -36,13 +36,19 @@ const ConnectionsScreen: React.FC = () => {
   } = useConnections(filterState, currentUserId);
 
 
-  const university = authStore.user?.user_uni || '';
-  const field = authStore.user?.user_field || '';
-  const city = authStore.user?.user_city || '';
+  const [university, setUniversity] = useState(authStore.user?.userUni || '');
+  const [field, setField] = useState(authStore.user?.userField || '');
+  const [city, setCity] = useState(authStore.user?.userCity || '');
 
   useEffect(() => {
     fetchConnections(1, filterState);
   }, [filterState]);
+
+  useEffect(() => {
+    setUniversity(authStore.user?.userUni || '');
+    setField(authStore.user?.userField || '');
+    setCity(authStore.user?.userCity || '');
+  }, [authStore.user]);
 
   const toggleFilter = (type: keyof FilterState, value: string) => {
     console.log('toggleFilter', type, value);
