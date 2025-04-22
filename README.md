@@ -18,39 +18,27 @@ REKRO bridges social gaps by creating platforms for users to discover events, co
 - **Home Feed**
   - Personalized activity recommendations based on user preferences
   - Potential social connections suggested by algorithm
-  - Real-time updates for friend activities
   - Customizable feed filtering options
   - Pull-to-refresh and infinite scrolling implementation
 
 - **Event Discovery & Participation**
-  - Browse events by category, location, or date
-  - Detailed event information including description, attendees, and location
-  - RSVP functionality with calendar integration
-  - Event creation and management for hosts
-  - Rating and review system for past events
-  - Location-based event suggestions with map integration
+  - Detailed event information including description, and location
+  - Detailed info about attendees
 
 - **Social Connections**
   - Friend request system with notifications
-  - User profile viewing with activity history
+  - User profile viewing
   - Connection recommendations based on mutual interests
   - Block and report functionality for user safety
-  - Privacy controls for sharing information
 
 - **Real-time Chat**
   - Private conversations with contacts using WebSockets
-  - Media sharing capabilities (images, documents)
   - Read receipts and typing indicators
-  - Message search functionality
-  - Push notifications for new messages
-  - Offline message queuing
 
 - **Profile Management**
   - View and edit personal information
   - Manage followers and following lists
   - Privacy settings configuration
-  - Activity history and statistics
-  - Customizable profile themes
 
 ### Technical Features
 
@@ -67,94 +55,19 @@ REKRO bridges social gaps by creating platforms for users to discover events, co
 ```
 ├── src/                  # Source code directory
 │   ├── assets/           # Images and static resources
-│   │   ├── images/       # Application images and icons
-│   │   ├── fonts/        # Custom font files
-│   │   └── animations/   # Lottie animation files
-│   │
-│   ├── components/       # Reusable UI components
-│   │   ├── common/       # Shared components (buttons, inputs, etc.)
-│   │   ├── forms/        # Form-related components
-│   │   ├── layout/       # Layout components
-│   │   └── modals/       # Modal dialogs
-│   │
 │   ├── hooks/            # Custom React Hooks
-│   │   ├── useAuth.ts    # Authentication hooks
-│   │   ├── useSocket.ts  # WebSocket connection hooks
-│   │   └── useTheme.ts   # Theme management hooks
-│   │
 │   ├── screens/          # Application screen components
 │   │   ├── auth/         # Authentication-related screens
-│   │   │   ├── Login.tsx
-│   │   │   ├── Register.tsx
-│   │   │   └── ForgotPassword.tsx
-│   │   │
 │   │   ├── connections/  # Social connection features
-│   │   │   ├── FriendList.tsx
-│   │   │   ├── FriendRequests.tsx
-│   │   │   └── PeopleSearch.tsx
-│   │   │
 │   │   ├── conversations/# Chat conversation features
-│   │   │   ├── ChatList.tsx
-│   │   │   ├── ChatRoom.tsx
-│   │   │   └── MessageComposer.tsx
-│   │   │
 │   │   ├── events/       # Event-related features
-│   │   │   ├── EventList.tsx
-│   │   │   ├── EventDetails.tsx
-│   │   │   └── EventCreation.tsx
-│   │   │
 │   │   ├── home/         # Home screen
-│   │   │   ├── HomeFeed.tsx
-│   │   │   ├── Notifications.tsx
-│   │   │   └── ActivityFeed.tsx
-│   │   │
 │   │   └── profile/      # User profile screens
-│   │       ├── UserProfile.tsx
-│   │       ├── EditProfile.tsx
-│   │       └── Settings.tsx
-│   │
 │   ├── services/         # API services and data access
-│   │   ├── api/          # API client configuration
-│   │   │   ├── client.ts
-│   │   │   └── endpoints.ts
-│   │   │
-│   │   ├── auth/         # Authentication services
-│   │   ├── events/       # Event-related services
-│   │   ├── chat/         # Chat-related services
-│   │   └── users/        # User-related services
-│   │
-│   ├── stores/           # MobX state stores
-│   │   ├── authStore.ts
-│   │   ├── eventStore.ts
-│   │   ├── chatStore.ts
-│   │   └── rootStore.ts
-│   │
-│   ├── navigation/       # Navigation configuration
-│   │   ├── AppNavigator.tsx
-│   │   ├── AuthNavigator.tsx
-│   │   └── TabNavigator.tsx
-│   │
 │   ├── styles/           # Shared styles
-│   │   ├── colors.ts
-│   │   ├── spacing.ts
-│   │   ├── typography.ts
-│   │   └── theme.ts
-│   │
-│   ├── utils/            # Utility functions
-│   │   ├── datetime.ts
-│   │   ├── validation.ts
-│   │   └── storage.ts
-│   │
 │   └── types/            # TypeScript type definitions
-│       ├── auth.types.ts
-│       ├── event.types.ts
-│       ├── user.types.ts
-│       └── chat.types.ts
-│
 ├── App.tsx               # Application entry component
 ├── app.json              # Expo configuration
-├── babel.config.js       # Babel configuration
-├── tsconfig.json         # TypeScript configuration
 └── package.json          # Dependencies and scripts
 ```
 
@@ -265,39 +178,30 @@ REKRO bridges social gaps by creating platforms for users to discover events, co
 The application implements a nested navigation structure:
 
 1. **Root Navigator**:
-   - Controls authentication flow
-   - Handles deep linking
+   - Handles conditional rendering between Auth Stack and Main Tab Navigator based on authentication state
 
 2. **Authentication Stack Navigator**:
    - Login Screen
-   - Registration Screen
-   - Forgot Password Screen
+   - Signup Screen
    - Profile Setup Screen
 
 3. **Main Tab Navigator**:
-   - Home Tab
-     - Home Feed Screen
-     - Search Screen
-   - Events Tab
+   - Home Tab (Stack)
+     - Home Screen
+     - Event Detail Screen
+   - Events Tab (Stack)
      - Events List Screen
-     - Event Details Screen
-     - Event Creation Screen
-   - Connections Tab
-     - Friend List Screen
-     - Friend Requests Screen
-     - People Discovery Screen
-   - Chat Tab
+     - Event Detail Screen
+   - Connections Tab (Stack)
+     - Connections List Screen
+   - Chats Tab (Stack)
      - Conversations List Screen
-     - Chat Room Screen
-   - Profile Tab
+     - Chat Screen
+     - WebSocket Test Screen
+   - Account Tab (Stack)
      - User Profile Screen
-     - Settings Screen
-     - Account Management Screen
-
-4. **Modal Stack Navigator**:
-   - Notification Modal
-   - Photo Viewer Modal
-   - Share Content Modal
+     - User List Screen (Followers/Following)
+     - Profile Setup Screen (Edit Profile)
 
 ## Development Guidelines
 

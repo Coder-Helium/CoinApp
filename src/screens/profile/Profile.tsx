@@ -36,6 +36,7 @@ const ProfileScreen = observer(() => {
     useCallback(() => {
       console.log('Profile screen focused, refreshing data');
       profileStore.fetchProfile();
+      console.log('Profile data fetched:', profileStore.profile);
       return () => {
         // cleanup if needed
       };
@@ -139,6 +140,19 @@ const ProfileScreen = observer(() => {
           </View>
         </View>
 
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>
+            <Ionicons name="wallet-outline" size={20} color="#006400" style={styles.sectionIcon} /> Coins
+          </Text>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>Available Coins</Text>
+            <View style={styles.coinContainer}>
+              <Ionicons name="cash-outline" size={18} color="#FFD700" />
+              <Text style={styles.coinValue}>{profileStore.profile?.coin || 0}</Text>
+            </View>
+          </View>
+        </View>
+
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color="#ff3b30" style={styles.buttonIcon} />
           <Text style={styles.logoutButtonText}>Logout</Text>
@@ -229,6 +243,16 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 16,
     color: '#333',
+  },
+  coinValue: {
+    fontSize: 18,
+    color: '#333',
+    fontWeight: 'bold',
+    marginLeft: 5,
+  },
+  coinContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   logoutButton: {
     margin: 20,

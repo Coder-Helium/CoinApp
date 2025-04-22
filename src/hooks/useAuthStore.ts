@@ -18,6 +18,7 @@ export interface User {
   userUni?: string;
   createdAt?: string;
   token?: string;
+  coin?: number;
 }
 
 class AuthStore {
