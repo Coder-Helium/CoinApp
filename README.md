@@ -148,9 +148,7 @@ REKRO bridges social gaps by creating platforms for users to discover events, co
 
 4. Start the development server
    ```bash
-   yarn start
-   # or
-   npm start
+   npx expo start
    ```
 
 5. Run the application
@@ -162,7 +160,7 @@ REKRO bridges social gaps by creating platforms for users to discover events, co
 
 - If you encounter package resolution issues, try clearing the cache:
   ```bash
-  expo start -c
+  npx expo start -c
   ```
 
 - For iOS build issues, ensure Xcode and CocoaPods are properly installed:
@@ -267,64 +265,6 @@ Configure environment-specific variables in the appropriate `.env` files.
 - Optimize images for mobile devices
 - Implement proper loading states and skeleton screens
 - Use lazy loading for non-critical components
-
-## Testing Strategy
-
-### Unit Testing
-
-Unit tests focus on testing individual components and functions in isolation:
-
-```bash
-# Run unit tests
-yarn test
-```
-
-### Integration Testing
-
-Integration tests verify that different parts of the application work together correctly:
-
-```bash
-# Run integration tests
-yarn test:integration
-```
-
-### End-to-End Testing
-
-E2E tests simulate user interactions to test complete workflows:
-
-```bash
-# Run E2E tests
-yarn test:e2e
-```
-
-## Deployment
-
-### Building for Production
-
-```bash
-# Build for Android
-eas build -p android
-
-# Build for iOS
-eas build -p ios
-```
-
-### Publishing Updates
-
-```bash
-# Publish an update to existing builds
-eas update --branch production
-```
-
-### App Store Submission
-
-1. Generate production build
-2. Create app listings in App Store Connect and Google Play Console
-3. Upload builds using EAS Submit:
-   ```bash
-   eas submit -p ios
-   eas submit -p android
-   ```
 
 ## Monitoring and Analytics
 
