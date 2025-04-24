@@ -140,18 +140,13 @@ REKRO bridges social gaps by creating platforms for users to discover events, co
    npm install
    ```
 
-3. Set up environment variables
-   ```bash
-   cp .env.example .env
-   # Update .env with your configuration
-   ```
 
-4. Start the development server
+3. Start the development server
    ```bash
    npx expo start
    ```
 
-5. Run the application
+4. Run the application
    - Press `i` to run on iOS simulator
    - Press `a` to run on Android simulator
    - Scan the QR code with the Expo Go app on your device
