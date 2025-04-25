@@ -33,7 +33,7 @@ class EventStore {
     try {
       const data = await eventApi.getEvents();
       this.events = data;
-      console.log('成功获取事件列表，数量:', data.length);
+      //console.log('成功获取事件列表，数量:', data.length);
     } catch (error) {
       console.error('获取事件列表失败:', error);
       this.error = '获取事件列表失败';

@@ -41,7 +41,7 @@ export default function useConnections(filterState: FilterState = DEFAULT_FILTER
       const response = await connectionApi.getConnections(pageNum, 6, currentUserId, filters);
 
       if (response.code === 200 && response.data) {
-        console.log('fetchConnections response:', response.data);
+        //('fetchConnections response:', response.data);
         const records = response.data.records || [];
         setConnections(records);
       } else {
@@ -88,7 +88,7 @@ export default function useConnections(filterState: FilterState = DEFAULT_FILTER
     }
 
     try {
-      console.log('Sending friend request', currentUserId, friendId);
+      //console.log('Sending friend request', currentUserId, friendId);
       const result = await connectionApi.sendFriendRequest(currentUserId, friendId);
 
       if (result.code === 200) {

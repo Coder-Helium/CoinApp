@@ -283,23 +283,23 @@ export const conversationApi = {
   },
 
   // 标记消息为已读
-  markAsRead: async (userId: number): Promise<boolean> => {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    const messages = mockMessages[userId];
-    if (messages) {
-      messages.forEach(message => {
-        if (message.senderId === userId) {
-          message.isRead = true;
-        }
-      });
+  // markAsRead: async (userId: number): Promise<boolean> => {
+  //   await new Promise(resolve => setTimeout(resolve, 100));
+  //   const messages = mockMessages[userId];
+  //   if (messages) {
+  //     messages.forEach(message => {
+  //       if (message.senderId === userId) {
+  //         message.isRead = true;
+  //       }
+  //     });
 
-      // 更新对话列表中的未读数
-      const conversation = mockConversations.find(c => c.userId === userId);
-      if (conversation) {
-        conversation.unreadCount = 0;
-      }
-      return true;
-    }
-    return false;
-  },
+  //     // 更新对话列表中的未读数
+  //     const conversation = mockConversations.find(c => c.userId === userId);
+  //     if (conversation) {
+  //       conversation.unreadCount = 0;
+  //     }
+  //     return true;
+  //   }
+  //   return false;
+  // },
 }; 

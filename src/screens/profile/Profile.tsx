@@ -34,9 +34,9 @@ const ProfileScreen = observer(() => {
   // Refresh data when the screen comes into focus (returning from Edit Profile)
   useFocusEffect(
     useCallback(() => {
-      console.log('Profile screen focused, refreshing data');
+      //console.log('Profile screen focused, refreshing data');
       profileStore.fetchProfile();
-      console.log('Profile data fetched:', profileStore.profile);
+      //console.log('Profile data fetched:', profileStore.profile);
       return () => {
         // cleanup if needed
       };

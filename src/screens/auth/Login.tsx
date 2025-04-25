@@ -42,7 +42,7 @@ const LoginScreen = observer(() => {
         setEmail('');
         setPassword('');
 
-        console.log('Login successful, authentication state updated');
+        //console.log('Login successful, authentication state updated');
       }
     } catch (error) {
       console.error('Login error:', error);

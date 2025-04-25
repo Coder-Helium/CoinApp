@@ -78,7 +78,7 @@ class AuthStore {
         return true;
       } else {
         Alert.alert('Login Failed', result.message);
-        console.log(result);
+        //console.log(result);
         return false;
       }
     } catch (error) {

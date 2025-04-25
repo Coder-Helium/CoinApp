@@ -37,17 +37,17 @@ const ChatScreen = observer(() => {
     });
     conversationStore.fetchMessages(userId, contactId);
 
-    // 确保WebSocket连接
-    if (!conversationStore.wsConnected) {
-      // 使用SockJS连接
-      // 注意：SockJS URL应该使用http://而不是ws://
-      conversationStore.connectWebSocket('http://54.252.49.201:8080/sockjs');
-    }
+    // // 确保WebSocket连接
+    // if (!conversationStore.wsConnected) {
+    //   // 使用SockJS连接
+    //   // 注意：SockJS URL应该使用http://而不是ws://
+    //   conversationStore.connectWebSocket('http://54.252.49.201:8080/sockjs');
+    // }
 
-    // 组件卸载时的清理
-    return () => {
-      // 不断开WebSocket连接，因为它可能还需要在其他地方使用
-    };
+    // // 组件卸载时的清理
+    // return () => {
+    //   // 不断开WebSocket连接，因为它可能还需要在其他地方使用
+    // };
   }, [navigation, username, userId, contactId, conversationStore]);
 
   // 监听消息列表变化，自动滚动到底部

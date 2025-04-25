@@ -4,6 +4,7 @@ import {wsService} from '../services/websocket';
 import {messageApi, friendApi, connectionApi} from '../services/api';
 import type {WebSocketMessage} from '../services/websocket/types';
 import { cacheStores } from '../../metro.config';
+import { useAuthStore } from './useAuthStore';
 
 class ConversationStore {
   conversations: Conversation[] = [];
@@ -117,7 +118,7 @@ class ConversationStore {
     this.loading = true;
     try {
       const data = await messageApi.getLatestConversations(userId);
-      console.log('get conversations data', data);
+      //console.log('get conversations data', data);
       this.conversations = data;
     } catch (error) {
       console.error(error);
@@ -144,7 +145,7 @@ class ConversationStore {
     try {
       // Fetch friend requests
       const friendRequests = await friendApi.getFriendRequests(userId);
-      console.log('Friend requests:', friendRequests);
+      //console.log('Friend requests:', friendRequests);
 
       if (!friendRequests || friendRequests.length === 0) {
         //console.error('No friend requests found');
@@ -155,7 +156,8 @@ class ConversationStore {
 
         const requestsWithDetails = await Promise.all(
           this.requestinfo.map(async (info) => {
-            const userDetails = await connectionApi.getUserProfile(info.friendId);
+            const authStore = useAuthStore();
+            const userDetails = authStore.user
             return {
               id: info.friendId,
               name: userDetails?.name || 'Unknown',
@@ -171,7 +173,7 @@ class ConversationStore {
 
       // Update the request array with detailed information
       
-      console.log('Updated request array:', this.request);
+      //console.log('Updated request array:', this.request);
     } catch (error) {
       console.error('Error fetching friend requests:', error);
     } finally {
@@ -184,7 +186,7 @@ class ConversationStore {
     try {
       const success = await friendApi.processFriendRequest(userId, friendId, 'accept');
       if (success) {
-        console.log(`Friend request from ${friendId} accepted.`);
+        //console.log(`Friend request from ${friendId} accepted.`);
         // Remove the accepted request from the list
         
       }
@@ -201,7 +203,7 @@ class ConversationStore {
     try {
       const success = await friendApi.processFriendRequest(userId, friendId, 'reject');
       if (success) {
-        console.log(`Friend request from ${friendId} rejected.`);
+        //console.log(`Friend request from ${friendId} rejected.`);
         // Remove the rejected request from the list
       
       }
@@ -219,7 +221,7 @@ class ConversationStore {
       const data = await messageApi.getMessagesBetweenUsers(userId, contactId);
       this.currentMessages = data;
       // 标记消息为已读
-      await messageApi.markAsRead(userId);
+      //await messageApi.markAsRead(userId);
       // 更新对话列表中的未读数
       const conversation = this.conversations.find(c => c.userId === userId);
       if (conversation) {

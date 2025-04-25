@@ -51,8 +51,8 @@ const ConnectionsScreen: React.FC = () => {
   }, [authStore.user]);
 
   const toggleFilter = (type: keyof FilterState, value: string) => {
-    console.log('toggleFilter', type, value);
-    console.log('filterState', filterState);
+    //console.log('toggleFilter', type, value);
+    //console.log('filterState', filterState);
     setFilterState(prev => ({
       ...prev,
       [type]: prev[type] === value ? null : value,

@@ -16,7 +16,7 @@ const api = axios.create({
 // 请求拦截器，添加token
 api.interceptors.request.use(
   async (config) => {
-    console.log('请求拦截器', config);
+    //console.log('请求拦截器', config);
     const token = await AsyncStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -322,10 +322,10 @@ export const eventApi = {
         }
 
         const userId = userData.id;
-        console.log('发起事件列表请求，用户ID:', userId);
+        //console.log('发起事件列表请求，用户ID:', userId);
 
         const response = await api.get(`/event/list?userId=${userId}`);
-        console.log('事件列表响应:', response.status);
+        //console.log('事件列表响应:', response.status);
 
         if (response.data.code === 200) {
           return response.data.data.map((event: any, participants: any) => ({
@@ -391,13 +391,13 @@ export const eventApi = {
       }
       const userData = JSON.parse(userJson);
       const userId = userData.id;
-      console.log('user', userId);
+      //console.log('user', userId);
       const response = await api.get(`/event/detail/${id}?userId=${userId}`);
       //const response = await mockEventApi.getEventById(id);
       if (response.data.code === 200) {
         const event = response.data.data.event;
         const participants = response.data.data.participants;
-        console.log('event', event);
+        //console.log('event', event);
         return {
           id: event?.id,
           title: event?.title,
@@ -425,10 +425,10 @@ export const eventApi = {
         eventId,
         userId,
       });
-      console.log('参加活动响应:', response);
+      //console.log('参加活动响应:', response);
       return response.data;
     } catch (error) {
-      console.error('参加活动失败:', error);
+      //console.error('参加活动失败:', error);
       return {
         code: 500,
         message: '参加活动请求失败，请稍后再试',
@@ -444,7 +444,7 @@ export const eventApi = {
         eventId,
         userId,
       });
-      console.log('退出活动响应:', response);
+      //console.log('退出活动响应:', response);
       return response.data;
     } catch (error) {
       console.error('退出活动失败:', error);
@@ -568,9 +568,9 @@ export const messageApi = {
   getLatestConversations: async (userId: number) => {
     try {
       const response = await api.get(`/message/latest/${userId}`);
-      console.log('get latest conversations response', response);
+      //console.log('get latest conversations response', response);
       if (response.status === 200) {
-        console.log('get latest conversations data', response.data);
+        //console.log('get latest conversations data', response.data);
         return response.data;
       }
       return [];
